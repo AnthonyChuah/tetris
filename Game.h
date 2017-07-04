@@ -17,13 +17,17 @@ Commands:
 */
 
 class Game {
+  
   static int MILLISECS_PER_TIMESTEP = 50; // 20 frames per second
   static int TIMESTEPS_AFTER_LAYING = 10;
-  Board& board_;
   View& view_;
+  Board& board_;
   int nextCommand_ = 0;
+  
  public:
+  
   Game(); // default constructor override
+  void launchAllThreads(); // calls all 3 launch functions below
   void launchClockThread(); // the clock gives the illusion of smooth real-time playing
   // WARNING: if processing takes longer than the timestep (50 ms) you could skip a timestep
   // this should never happen on a normal computer however
@@ -37,6 +41,7 @@ class Game {
   // then once the game is changed, it updates the View (graphics)
   // NOTE: could be worth separating Game and View threads if in danger of lagging
   // graphics may lag but the game logic must not
+  
 };
 
 #endif
