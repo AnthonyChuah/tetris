@@ -2,7 +2,13 @@
 
 #include <exception>
 
-Board::Board(View* _Pview) : view_(_Pview) {}
+Board::Board() {
+  for (int i = 0; i < HEIGHT; ++i) {
+    for (int j = 0; j < HEIGHT; ++j) {
+      board_[i][j] = ' ';
+    }
+  }
+}
 
 void Board::timestep(int _command) {
   ++timesteps_;

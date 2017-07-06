@@ -22,6 +22,7 @@ class Board {
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done
   View* view_; // The View is responsible for the graphical display
+  char[HEIGHT][WIDTH] board_;
   
   /* void shiftLeft(); */
   /* void shiftRight(); */
@@ -31,7 +32,8 @@ class Board {
   void dropToBottom();
   
  public:
-
+  
+  Board();
   void timestep(int _command); // Each timestep, do the command entered by the player
   void tick(); // Each tick, the current piece descends one square
   void layCurrentPiece(); // This should do 3 steps:
