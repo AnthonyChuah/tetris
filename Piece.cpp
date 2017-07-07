@@ -1,6 +1,41 @@
 #include "Piece.h"
 
-// All these below may belong to Piece.cpp instead!
+#include <algorithm>
+
+{
+  using Piece::orientMap_;
+  int numOrientations = 4;
+
+  // First, create the orientation map for 'o' pieces
+  int oPieceRFrameSize = 4; // rotation frame for the 'o' piece is 2 by 2, i.e. total 4 squares
+  std::vector<char*> fourOrientArraysO(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysO) {
+    (*i) = new char[oPieceRFrameSize];
+    for (int j = 0; j < oPieceRFrameSize; ++j)
+      (**i)[j] = 'o';
+  }
+  orientMap_.insert('o', fourOrientArraysO);
+  // Explanation: the char array is a representation of which squares are filled in this
+  // orientation. Since this is the 'o' piece, it is the simplest: all 4 squares are filled
+  // in all orientations.
+
+  // Next, create the orientation map for 'l' pieces
+  int lPieceRFrameSize = 16; // 4 by 4 rotation frame
+  std::vector<char*> fourOrientArraysL(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysL)
+    (*i) = new char[lPieceRFrameSize];
+  // Left orientation (0th orientation) is vertical, filling up the 1th column
+  for (int i = 0; i < lPieceRFrameSize; ++i) fourOrientArraysL[0][i] = ' ';
+  for (int i = 1; i <= 13; i += 4) fourOrientArraysL[0][i] = 'l';
+  // Top orientation (1th) is horizontal, filling up the 1th row
+  // Right orientation (2th) is vertical, filling up the 2th col
+  // Bottom orientation (3th) is horizontal, filling up the 2th row
+  
+  // REMEMBER this needs destruction
+  // Since this is static, the destructor for Piece MUST NOT be responsible
+  // I designed the Board class to contain the Piece, a la Composition
+  // So the Board can be responsible for destruction of Piece's static members
+}
 
 void Piece::shiftLeft() {
   // First, find leftmost blocks
@@ -11,9 +46,11 @@ void Piece::shiftLeft() {
     // Now I am checking each row in the rotationFrame, and finding the location of that row's
     // leftmost point. After I get it, check if it either hits the edge, or clashes with a
     // laid piece.
-    if (leftMostCols[i] < 0) continue;
+    if (leftMostCols[i] < 0) continue; // that means for this row this piece has no square
     int rownum = topLeftRowPos_ + i;
-    int colToCheckForCollide = topLeftColPos_ + leftMostCols[i];
+    int colToCheckForCollide = topLeftColPos_ + leftMostCols[i] - 1;
+    if (board_[rownum][colToCheckForCollide] > ' ' || colToCheckForCollide < 0)
+      return;
   }
   // If not clash, move all 4 blocks left by decrementing topLeftColPos
   --topLeftColPos;
@@ -21,6 +58,14 @@ void Piece::shiftLeft() {
 
 void Piece::shiftRight() {
   // Similar reasoning to shiftLeft
+  std::vector<int> rightMostCols = rightMostSquares();
+  for (int i = 0; i < rotateFrameSize_; ++i) {
+    if (rightMostCols[i] < 0) continue;
+    int rownum = topLeftRowPos_ + i;
+    int colToCheckForCollide = topLeftColPos_ + rightMostCols[i] + 1;
+    if (board_[rownum][colToCheckForCollide] > ' ' || colToCheckForCollide >= BOARDWIDTH)
+      return;
+  }
   ++topLeftColPos;
 }
 
@@ -35,8 +80,11 @@ void Piece::tickDown() {
 }
 
 void Piece::rotateAnti() {
+  int startOrientation = orientation_;
   --orientation_;
   if (orientation_ < 0) orientation_ = 3;
+  // Now check if this causes any clash
+  if (!checkForRotateCollision())
 }
 
 void Piece::rotateClock() {
@@ -81,12 +129,8 @@ bool Piece::checkIfHitBottom() {
 }
 
 std::vector<int> leftMostSquares() {
-  std::vector<int> leftMosts;
-  for (int i = 0; i < rotateFrameSize; ++i) {
-    // Initialize leftMosts to -1, necessary for some shapes where certain rows are empty
-    // when oriented in certain ways
-    leftMosts.push_back(-1);
-  }
+  std::vector<int> leftMosts(rotateFrameSize_);
+  std::fill(leftMosts.begin(), leftMosts.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
   int rownum; int colnum;
   for (int i = rFrameVolume-1; i >= 0; --i) {
@@ -102,8 +146,8 @@ std::vector<int> leftMostSquares() {
 }
 
 std::vector<int> rightMostSquares() {
-  std::vector<int> rightMosts;
-  for (int i = 0; i < rotateFrameSize; ++i) rightMosts.push_back(-1);
+  std::vector<int> rightMosts(rotateFrameSize_);
+  std::fill(rightMosts.begin(), rightMosts.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
   int rownum, colnum;
   for (int i = 0; i < rFrameVolume; ++i) {
@@ -117,10 +161,8 @@ std::vector<int> rightMostSquares() {
 }
 
 std::vector<int> lowestSquares() {
-  std::vector<int> lowests;
-  // CONSIDER using a range-based operation on the container instead
-  // more efficient than looping
-  for (int i = 0; i < rotateFrameSize; ++i) lowests.push_back(-1);
+  std::vector<int> lowests(rotateFrameSize_);
+  std::fill(lowests.begin(), lowests.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
   int rownum, colnum;
   for (int i = 0; i < rFrameVolume; ++i) {
