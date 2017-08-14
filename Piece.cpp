@@ -1,40 +1,174 @@
 #include "Piece.h"
 
 #include <algorithm>
+#include <fstream>
 
 {
-  using Piece::orientMap_;
-  int numOrientations = 4;
+  // Populate the map of rotation frame sizes for each piece type
+  int oPieceLen = 2; int oPieceRFrameSize = 4; // 4 = 2 * 2
+  int lPieceLen = 4; int lPieceRFrameSize = 16; // 4 by 4 rotation frame
+  int sPieceLen = 3; int sPieceRFrameSize = 9;
+  int zPieceLen = 3; int zPieceRFrameSize = 9;
+  int jPieceLen = 3; int jPieceRFrameSize = 9;
+  int sevenPieceLen = 3; int sevenPieceRFrameSize = 9;
+  int tPieceLen = 3; int tPieceRFrameSize = 9;
+  rotateFrameSizes_.insert('o', oPieceLen);
+  rotateFrameSizes_.insert('l', lPieceLen);
+  rotateFrameSizes_.insert('s', sPieceLen);
+  rotateFrameSizes_.insert('z', zPieceLen);
+  rotateFrameSizes_.insert('j', jPieceLen);
+  rotateFrameSizes_.insert('7', sevenPieceLen);
+  rotateFrameSizes_.insert('t', tPieceLen);
+  
+  int numOrientations = 4; std::ifstream ifs;
 
   // First, create the orientation map for 'o' pieces
-  int oPieceRFrameSize = 4; // rotation frame for the 'o' piece is 2 by 2, i.e. total 4 squares
   std::vector<char*> fourOrientArraysO(numOrientations);
   for (std::vector<char*>::const_iterator i : fourOrientArraysO) {
     (*i) = new char[oPieceRFrameSize];
     for (int j = 0; j < oPieceRFrameSize; ++j)
       (**i)[j] = 'o';
   }
-  orientMap_.insert('o', fourOrientArraysO);
+  Piece::orientMap_.insert('o', fourOrientArraysO);
   // Explanation: the char array is a representation of which squares are filled in this
   // orientation. Since this is the 'o' piece, it is the simplest: all 4 squares are filled
   // in all orientations.
 
-  // Next, create the orientation map for 'l' pieces
-  int lPieceRFrameSize = 16; // 4 by 4 rotation frame
+  // 'l' piece
   std::vector<char*> fourOrientArraysL(numOrientations);
   for (std::vector<char*>::const_iterator i : fourOrientArraysL)
     (*i) = new char[lPieceRFrameSize];
-  // Left orientation (0th orientation) is vertical, filling up the 1th column
-  for (int i = 0; i < lPieceRFrameSize; ++i) fourOrientArraysL[0][i] = ' ';
-  for (int i = 1; i <= 13; i += 4) fourOrientArraysL[0][i] = 'l';
-  // Top orientation (1th) is horizontal, filling up the 1th row
-  // Right orientation (2th) is vertical, filling up the 2th col
-  // Bottom orientation (3th) is horizontal, filling up the 2th row
+  ifs.open("pieceL.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < lPieceLen; ++j) {
+	for (int k = 0; k < lPieceLen; ++k) {
+	  n = j * lPieceLen + k;
+	  fourOrientArraysL[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush the whole line.. getline?
+      }
+    }
+  }
+  ifs.close();
+  Piece::orientMap_.insert('l', fourOrientArraysL);
+
+  // 's' piece
+  std::vector<char*> fourOrientArraysS(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysS)
+    (*i) = new char[sPieceRFrameSize];
+  ifs.open("pieceS.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < sPieceLen; ++j) {
+	for (int k = 0; k < sPieceLen; ++k) {
+	  n = j * sPieceLen + k;
+	  fourOrientArraysS[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush
+      }
+    }
+  }
+  ifs.close();
+  Piece::orientMap_.insert('s', fourOrientArraysS);
+
+  // 'z' piece
+  std::vector<char*> fourOrientArraysZ(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysZ)
+    (*i) = new char[zPieceRFrameSize];
+  ifs.open("pieceZ.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < zPieceLen; ++j) {
+	for (int k = 0; k < zPieceLen; ++k) {
+	  n = j * zPieceLen + k;
+	  fourOrientArraysZ[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush
+      }
+    }
+  }
+  ifs.close();
+  Piece::orientMap_.insert('z', fourOrientArraysZ);
+
+  // 'j' piece
+  std::vector<char*> fourOrientArraysJ(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysJ)
+    (*i) = new char[jPieceRFrameSize];
+  ifs.open("pieceJ.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < jPieceLen; ++j) {
+	for (int k = 0; k < jPieceLen; ++k) {
+	  n = j * jPieceLen + k;
+	  fourOrientArraysJ[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush
+      }
+    }    
+  }
+  ifs.close();
+  Piece::orientMap_.insert('j', fourOrientArraysJ);
+
+  // '7' piece
+  std::vector<char*> fourOrientArrays7(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArrays7)
+    (*i) = new char[sevenPieceRFrameSize];
+  ifs.open("piece7.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < sevenPieceLen; ++j) {
+	for (int k = 0; k < sevenPieceLen; ++k) {
+	  n = j * sevenPieceLen + k;
+	  fourOrientArrays7[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush
+      }
+    }
+  }
+  ifs.close();
+  Piece::orientMap_.insert('7', fourOrientArrays7);
+
+  // 't' piece
+  std::vector<char*> fourOrientArraysT(numOrientations);
+  for (std::vector<char*>::const_iterator i : fourOrientArraysT)
+    (*i) = new char[tPieceRFrameSize];
+  ifs.open("pieceT.dat");
+  {
+    int n;
+    for (int i = 0; i < numOrientations; ++i) {
+      for (int j = 0; j < tPieceLen; ++j) {
+	for (int k = 0; k < tPieceLen; ++k) {
+	  n = j * tPieceLen + k;
+	  fourOrientArraysT[i][n] = ifs.get();
+	}
+	ifs.get(); // Find some way to flush
+      }
+    }
+  }
+  ifs.close();
+  Piece::orientMap_.insert('t', fourOrientArraysT);
   
-  // REMEMBER this needs destruction
+  // REMEMBER that orientMap_ needs destruction!
   // Since this is static, the destructor for Piece MUST NOT be responsible
   // I designed the Board class to contain the Piece, a la Composition
   // So the Board can be responsible for destruction of Piece's static members
+}
+
+Piece::Piece(const char _type, char* _board) {
+  type_ = _type;
+  rotateFrameSize_ = rotateFrameSizes_[type_];
+  board_ = _board;
+  orientation_ = 0; // Always start with orientation 0
+  topLeftRowPos_ = 0;
+  topLeftColPos_ = 4; // This means visually it may be jarring because
+  // a 2-by-2 piece's left edge will be flush at col 4, but a 'l' piece will be displaced
+  // Consider changing, but for now let's try this.
 }
 
 void Piece::shiftLeft() {
@@ -81,18 +215,38 @@ void Piece::tickDown() {
 
 void Piece::rotateAnti() {
   int startOrientation = orientation_;
+  int startColPos = topLeftColPos_;
   --orientation_;
   if (orientation_ < 0) orientation_ = 3;
   // Now check if this causes any clash
-  if (!checkForRotateCollision())
+  // First see if this moves us out of left or right bounds. If so, shift accordingly
+  int shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
+  topLeftColPos_ += shiftDueToPastLeft;
+  if (checkForRotateCollision()) {
+    orientation_ = startOrientation;
+    topLeftColPos_ = startColPos;
+  }
 }
 
 void Piece::rotateClock() {
+  int startOrientation = orientation_;
+  int startColPos = topLeftColPos_;
   ++orientation_;
   if (orientation_ > 3) orientation_ = 0;
+  if (checkForRotationCollision()) { orientation_ = startOrientation; }
 }
 
 bool Piece::checkForRotateCollision() {
+  // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
+  for (auto i : orientMap_) {
+    // Each i is now an iterator to std::vector<char*>
+    // Each vector has 4 elements, for each orientation of a piece
+    // Each of these 4 elements is an array of size N, where N is the number of
+    // squares in the rotation frame. So a 4-by-4 rFrame has 16 squares.
+    // The squares are in row-major order, so position 3 is 0, 3, position 4 is 1, 0.
+    // Iterate over row first, then after that row is done, to next row.
+    
+  }
 }
 
 int Piece::shiftIfRotatePastLeftEdge() {
@@ -128,7 +282,7 @@ bool Piece::checkIfHitBottom() {
   return false;
 }
 
-std::vector<int> leftMostSquares() {
+std::vector<int> Piece::leftMostSquares() {
   std::vector<int> leftMosts(rotateFrameSize_);
   std::fill(leftMosts.begin(), leftMosts.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
@@ -136,7 +290,7 @@ std::vector<int> leftMostSquares() {
   for (int i = rFrameVolume-1; i >= 0; --i) {
     rownum = i / rotateFrameSize;
     colnum = i % rotateFrameSize;
-    if (orientMap_[orientation_][i] > ' ') {
+    if (orientMap_[type_][orientation_][i] > ' ') {
       // That means that square is non-empty
       leftMosts[rownum] = colnum;
       // Since iterating backwards, the final one is always leftmost
@@ -145,7 +299,7 @@ std::vector<int> leftMostSquares() {
   return leftMosts;
 }
 
-std::vector<int> rightMostSquares() {
+std::vector<int> Piece::rightMostSquares() {
   std::vector<int> rightMosts(rotateFrameSize_);
   std::fill(rightMosts.begin(), rightMosts.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
@@ -153,14 +307,14 @@ std::vector<int> rightMostSquares() {
   for (int i = 0; i < rFrameVolume; ++i) {
     rownum = i / rotateFrameSize;
     colnum = i % rotateFrameSize;
-    if (orientMap_[orientation_][i] > ' ') {
+    if (orientMap_[type_][orientation_][i] > ' ') {
       rightMosts[rownum] = colnum; // Iterating forwards, final one is rightmost
     }
   }
   return rightMosts;
 }
 
-std::vector<int> lowestSquares() {
+std::vector<int> Piece::lowestSquares() {
   std::vector<int> lowests(rotateFrameSize_);
   std::fill(lowests.begin(), lowests.end(), -1);
   int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
@@ -168,7 +322,7 @@ std::vector<int> lowestSquares() {
   for (int i = 0; i < rFrameVolume; ++i) {
     rownum = i / rotateFrameSize;
     colnum = i % rotateFrameSize;
-    if (orientMap_[orientation_][i] > ' ') {
+    if (orientMap_[type_][orientation_][i] > ' ') {
       if (lowests[colnum] < rownum) lowests[colnum] = rownum;
     }
   }
