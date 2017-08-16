@@ -27,7 +27,7 @@
 
   // First, create the orientation map for 'o' pieces
   std::vector<char*> fourOrientArraysO(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysO) {
+  for (std::vector<char*>::iterator i : fourOrientArraysO) {
     (*i) = new char[oPieceRFrameSize];
     for (int j = 0; j < oPieceRFrameSize; ++j)
       (**i)[j] = 'o';
@@ -39,7 +39,7 @@
 
   // 'l' piece
   std::vector<char*> fourOrientArraysL(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysL)
+  for (std::vector<char*>::iterator i : fourOrientArraysL)
     (*i) = new char[lPieceRFrameSize];
   ifs.open("pieceL.dat");
   {
@@ -59,7 +59,7 @@
 
   // 's' piece
   std::vector<char*> fourOrientArraysS(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysS)
+  for (std::vector<char*>::iterator i : fourOrientArraysS)
     (*i) = new char[sPieceRFrameSize];
   ifs.open("pieceS.dat");
   {
@@ -79,7 +79,7 @@
 
   // 'z' piece
   std::vector<char*> fourOrientArraysZ(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysZ)
+  for (std::vector<char*>::iterator i : fourOrientArraysZ)
     (*i) = new char[zPieceRFrameSize];
   ifs.open("pieceZ.dat");
   {
@@ -99,7 +99,7 @@
 
   // 'j' piece
   std::vector<char*> fourOrientArraysJ(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysJ)
+  for (std::vector<char*>::iterator i : fourOrientArraysJ)
     (*i) = new char[jPieceRFrameSize];
   ifs.open("pieceJ.dat");
   {
@@ -119,7 +119,7 @@
 
   // '7' piece
   std::vector<char*> fourOrientArrays7(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArrays7)
+  for (std::vector<char*>::iterator i : fourOrientArrays7)
     (*i) = new char[sevenPieceRFrameSize];
   ifs.open("piece7.dat");
   {
@@ -139,7 +139,7 @@
 
   // 't' piece
   std::vector<char*> fourOrientArraysT(numOrientations);
-  for (std::vector<char*>::const_iterator i : fourOrientArraysT)
+  for (std::vector<char*>::iterator i : fourOrientArraysT)
     (*i) = new char[tPieceRFrameSize];
   ifs.open("pieceT.dat");
   {
@@ -267,21 +267,16 @@ bool Piece::checkForRotateCollision() {
     // Now iterate over each possible square, and check for collisions
     // board_ holds the whole board's laid bricks
     // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
-    
+    char contentOfSquareInBoard = board_[topLeftRowPos_ + rowNum][topLeftColPos_ + colNum];
+    if (contentOfSquareInBoard > ' ' && pieceMap[i] > ' ') {
+      // Then the piece is clashing with the board.
+      return true;
+    }
   }
-  /*
-  for (auto i : orientMap_) {
-    // Each i is now an iterator to std::vector<char*>
-    // Each vector has 4 elements, for each orientation of a piece
-    // Each of these 4 elements is an array of size N, where N is the number of
-    // squares in the rotation frame. So a 4-by-4 rFrame has 16 squares.
-    // The squares are in row-major order, so position 3 is 0, 3, position 4 is 1, 0.
-    // Iterate over row first, then after that row is done, to next row.    
-  }
-  */
+  return false;
 }
 
-char* Piece::getPieceMap(const char& _type, const int& _orient) {
+char* Piece::getPieceMap(const char _type, const int _orient) {
   return orientMap_[_type][_orient];
 }
 
