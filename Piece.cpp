@@ -1,7 +1,9 @@
 #include "Piece.h"
 
+#include <limits>
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
 {
   // Populate the map of rotation frame sizes for each piece type
@@ -46,9 +48,9 @@
       for (int j = 0; j < lPieceLen; ++j) {
 	for (int k = 0; k < lPieceLen; ++k) {
 	  n = j * lPieceLen + k;
-	  fourOrientArraysL[i][n] = ifs.get();
+	  ifs.get(fourOrientArraysL[i][n]);
 	}
-	ifs.get(); // Find some way to flush the whole line.. getline?
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }
   }
@@ -66,9 +68,9 @@
       for (int j = 0; j < sPieceLen; ++j) {
 	for (int k = 0; k < sPieceLen; ++k) {
 	  n = j * sPieceLen + k;
-	  fourOrientArraysS[i][n] = ifs.get();
+	  ifs.get(fourOrientArraysS[i][n]);
 	}
-	ifs.get(); // Find some way to flush
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }
   }
@@ -86,9 +88,9 @@
       for (int j = 0; j < zPieceLen; ++j) {
 	for (int k = 0; k < zPieceLen; ++k) {
 	  n = j * zPieceLen + k;
-	  fourOrientArraysZ[i][n] = ifs.get();
+	  ifs.get(fourOrientArraysZ[i][n]);
 	}
-	ifs.get(); // Find some way to flush
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }
   }
@@ -106,9 +108,9 @@
       for (int j = 0; j < jPieceLen; ++j) {
 	for (int k = 0; k < jPieceLen; ++k) {
 	  n = j * jPieceLen + k;
-	  fourOrientArraysJ[i][n] = ifs.get();
+	  ifs.get(fourOrientArraysJ[i][n]);
 	}
-	ifs.get(); // Find some way to flush
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }    
   }
@@ -126,9 +128,9 @@
       for (int j = 0; j < sevenPieceLen; ++j) {
 	for (int k = 0; k < sevenPieceLen; ++k) {
 	  n = j * sevenPieceLen + k;
-	  fourOrientArrays7[i][n] = ifs.get();
+	  ifs.get(fourOrientArrays7[i][n]);
 	}
-	ifs.get(); // Find some way to flush
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }
   }
@@ -146,9 +148,9 @@
       for (int j = 0; j < tPieceLen; ++j) {
 	for (int k = 0; k < tPieceLen; ++k) {
 	  n = j * tPieceLen + k;
-	  fourOrientArraysT[i][n] = ifs.get();
+	  ifs.get(fourOrientArraysT[i][n]);
 	}
-	ifs.get(); // Find some way to flush
+	ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       }
     }
   }
