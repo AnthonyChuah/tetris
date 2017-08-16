@@ -12,15 +12,16 @@
   int jPieceLen = 3; int jPieceRFrameSize = 9;
   int sevenPieceLen = 3; int sevenPieceRFrameSize = 9;
   int tPieceLen = 3; int tPieceRFrameSize = 9;
-  rotateFrameSizes_.insert('o', oPieceLen);
-  rotateFrameSizes_.insert('l', lPieceLen);
-  rotateFrameSizes_.insert('s', sPieceLen);
-  rotateFrameSizes_.insert('z', zPieceLen);
-  rotateFrameSizes_.insert('j', jPieceLen);
-  rotateFrameSizes_.insert('7', sevenPieceLen);
-  rotateFrameSizes_.insert('t', tPieceLen);
+  rotateFrameWidths_.insert('o', oPieceLen);
+  rotateFrameWidths_.insert('l', lPieceLen);
+  rotateFrameWidths_.insert('s', sPieceLen);
+  rotateFrameWidths_.insert('z', zPieceLen);
+  rotateFrameWidths_.insert('j', jPieceLen);
+  rotateFrameWidths_.insert('7', sevenPieceLen);
+  rotateFrameWidths_.insert('t', tPieceLen);
   
-  int numOrientations = 4; std::ifstream ifs;
+  int numOrientations = 4;
+  std::ifstream ifs;
 
   // First, create the orientation map for 'o' pieces
   std::vector<char*> fourOrientArraysO(numOrientations);
@@ -162,7 +163,8 @@
 
 Piece::Piece(const char _type, char* _board) {
   type_ = _type;
-  rotateFrameSize_ = rotateFrameSizes_[type_];
+  rotateFrameWidth_ = rotateFrameWidths_[type_];
+  rotateFrameSize_ = rotateFrameWidth_ * rotateFrameWidth_;
   board_ = _board;
   orientation_ = 0; // Always start with orientation 0
   topLeftRowPos_ = 0;
@@ -176,7 +178,7 @@ void Piece::shiftLeft() {
   std::vector<int> leftMostCols = leftMostSquares();
   // Check if it will clash or go out of bounds if shifted one step left
   // If clash or out of bounds, do nothing (return)
-  for (int i = 0; i < rotateFrameSize_; ++i) {
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
     // Now I am checking each row in the rotationFrame, and finding the location of that row's
     // leftmost point. After I get it, check if it either hits the edge, or clashes with a
     // laid piece.
@@ -193,7 +195,7 @@ void Piece::shiftLeft() {
 void Piece::shiftRight() {
   // Similar reasoning to shiftLeft
   std::vector<int> rightMostCols = rightMostSquares();
-  for (int i = 0; i < rotateFrameSize_; ++i) {
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
     if (rightMostCols[i] < 0) continue;
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + rightMostCols[i] + 1;
@@ -213,40 +215,72 @@ void Piece::tickDown() {
   --topLeftRowPos_;
 }
 
-void Piece::rotateAnti() {
+bool Piece::rotateAnti() {
   int startOrientation = orientation_;
   int startColPos = topLeftColPos_;
   --orientation_;
   if (orientation_ < 0) orientation_ = 3;
   // Now check if this causes any clash
   // First see if this moves us out of left or right bounds. If so, shift accordingly
-  int shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
+  int shiftDueToPastRight, shiftDueToPastLeft;
+  shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
+  shiftDueToPastRight = shiftIfRotatePastRightEdge();
   topLeftColPos_ += shiftDueToPastLeft;
+  topLeftColPos_ -= shiftDueToPastRight;
   if (checkForRotateCollision()) {
     orientation_ = startOrientation;
     topLeftColPos_ = startColPos;
+    return false;
   }
+  return true;
 }
 
-void Piece::rotateClock() {
+bool Piece::rotateClock() {
   int startOrientation = orientation_;
   int startColPos = topLeftColPos_;
   ++orientation_;
   if (orientation_ > 3) orientation_ = 0;
-  if (checkForRotationCollision()) { orientation_ = startOrientation; }
+  int shiftDueToPastRight, shiftDueToPastLeft;
+  shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
+  shiftDueToPastRight = shiftIfRotatePastRightEdge();
+  if (shiftDueToPastLeft && shiftDueToPastRight) throw std::exception();
+  topLeftColPos_ += shiftDueToPastLeft;
+  topLeftColPos_ -= shiftDueToPastRight;
+  if (checkForRotationCollision()) {
+    orientation_ = startOrientation;
+    topLeftColPos_ = startColPos;
+    return false;
+  }
+  return true;
 }
 
 bool Piece::checkForRotateCollision() {
   // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
+  char* pieceMap = getPieceMap(this->type_, this->orientation_);
+  int rFrameSize = rotateFrameSize_;
+  int rFrameWidth = rotateFrameWidth_;
+  for (int i = 0; i < rFrameSize; ++i) {
+    int rowNum = i / rotateFrameWidth_;
+    int colNum = i % rotateFrameWidth_;
+    // Now iterate over each possible square, and check for collisions
+    // board_ holds the whole board's laid bricks
+    // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
+    
+  }
+  /*
   for (auto i : orientMap_) {
     // Each i is now an iterator to std::vector<char*>
     // Each vector has 4 elements, for each orientation of a piece
     // Each of these 4 elements is an array of size N, where N is the number of
     // squares in the rotation frame. So a 4-by-4 rFrame has 16 squares.
     // The squares are in row-major order, so position 3 is 0, 3, position 4 is 1, 0.
-    // Iterate over row first, then after that row is done, to next row.
-    
+    // Iterate over row first, then after that row is done, to next row.    
   }
+  */
+}
+
+char* Piece::getPieceMap(const char& _type, const int& _orient) {
+  return orientMap_[_type][_orient];
 }
 
 int Piece::shiftIfRotatePastLeftEdge() {
@@ -283,13 +317,13 @@ bool Piece::checkIfHitBottom() {
 }
 
 std::vector<int> Piece::leftMostSquares() {
-  std::vector<int> leftMosts(rotateFrameSize_);
+  std::vector<int> leftMosts(rotateFrameWidth_);
   std::fill(leftMosts.begin(), leftMosts.end(), -1);
-  int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
+  int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
   int rownum; int colnum;
   for (int i = rFrameVolume-1; i >= 0; --i) {
-    rownum = i / rotateFrameSize;
-    colnum = i % rotateFrameSize;
+    rownum = i / rotateFrameWidth;
+    colnum = i % rotateFrameWidth;
     if (orientMap_[type_][orientation_][i] > ' ') {
       // That means that square is non-empty
       leftMosts[rownum] = colnum;
@@ -300,13 +334,13 @@ std::vector<int> Piece::leftMostSquares() {
 }
 
 std::vector<int> Piece::rightMostSquares() {
-  std::vector<int> rightMosts(rotateFrameSize_);
+  std::vector<int> rightMosts(rotateFrameWidth_);
   std::fill(rightMosts.begin(), rightMosts.end(), -1);
-  int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
+  int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
   int rownum, colnum;
   for (int i = 0; i < rFrameVolume; ++i) {
-    rownum = i / rotateFrameSize;
-    colnum = i % rotateFrameSize;
+    rownum = i / rotateFrameWidth_;
+    colnum = i % rotateFrameWidth_;
     if (orientMap_[type_][orientation_][i] > ' ') {
       rightMosts[rownum] = colnum; // Iterating forwards, final one is rightmost
     }
@@ -315,13 +349,13 @@ std::vector<int> Piece::rightMostSquares() {
 }
 
 std::vector<int> Piece::lowestSquares() {
-  std::vector<int> lowests(rotateFrameSize_);
+  std::vector<int> lowests(rotateFrameWidth_);
   std::fill(lowests.begin(), lowests.end(), -1);
-  int rFrameVolume = rotateFrameSize_ * rotateFrameSize_;
+  int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
   int rownum, colnum;
   for (int i = 0; i < rFrameVolume; ++i) {
-    rownum = i / rotateFrameSize;
-    colnum = i % rotateFrameSize;
+    rownum = i / rotateFrameWidth;
+    colnum = i % rotateFrameWidth;
     if (orientMap_[type_][orientation_][i] > ' ') {
       if (lowests[colnum] < rownum) lowests[colnum] = rownum;
     }

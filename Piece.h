@@ -12,9 +12,10 @@ class Piece {
   // rotation frame is always square, and its length is 2 or 3 or 4
   int orientation_; // left is 0, top is 1, right is 2, bottom is 3
   const char type_;
+  const int rotateFrameWidth_;
   const int rotateFrameSize_; // Initialize from object constructor using rotateFrameSizes_ map
   static std::unordered_map<char, std::vector<char*> > orientMap_;
-  static std::unordered_map<char, int> rotateFrameSizes_;
+  static std::unordered_map<char, int> rotateFrameWidths_;
   char* board_; // pointer to the board so it can assess if a rotation or shift is illegal
   
   Piece();
@@ -23,6 +24,7 @@ class Piece {
   std::vector<int> leftMostSquares();
   std::vector<int> rightMostSquares();
   std::vector<int> lowestSquares();
+  char* getPieceMap(const char _type, const int _orient);
   
  public:
   
@@ -31,8 +33,8 @@ class Piece {
   void shiftLeft();
   void shiftRight();
   void tickDown();
-  void rotateAnti();
-  void rotateClock();
+  bool rotateAnti();
+  bool rotateClock();
   bool checkIfHitBottom();
   void destructStaticMaps();
   
