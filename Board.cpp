@@ -1,13 +1,24 @@
 #include "Board.h"
 
 #include <exception>
+#include <random>
 
 Board::Board() {
-  for (int i = 0; i < HEIGHT; ++i) {
-    for (int j = 0; j < HEIGHT; ++j) {
+  for (int i = 0; i < Board::HEIGHT; ++i) {
+    for (int j = 0; j < Board::WIDTH; ++j) {
       board_[i][j] = ' ';
     }
   }
+  pieces_[0] = Piece('o', board_);
+  pieces_[1] = Piece('l', board_);
+  pieces_[2] = Piece('s', board_);
+  pieces_[3] = Piece('z', board_);
+  pieces_[4] = Piece('j', board_);
+  pieces_[5] = Piece('7', board_);
+  pieces_[6] = Piece('t', board_);
+  this->generateNextPiece();
+  this->bringNextPieceUp();
+  this->generateNextPiece();
 }
 
 void Board::timestep(int _command) {
@@ -43,5 +54,18 @@ void Board::dropToBottom() {
   /* First, retrieve the y-displacements of the lowest points of currentPiece
      Check the distance to fall for each of the lowest points
      Find the shortest, then displace the piece downwards by that distance
+     ACTUALLY, CONSIDER MOVING THIS TO PIECE::
    */
+}
+
+void Board::bringNextPieceUp() {
+  currentPiece_ = nextPiece_;
+}
+
+void Board::generateNextPiece() {
+  std::random_device randomDevice;
+  std::mt19937 generator(randomDevice);
+  std::uniform_int_distribution<int> distribution(0, Board::NTYPES - 1);
+  int randomInt = distribution(generator);
+  nextPiece_ = pieces_ + randomInt;
 }

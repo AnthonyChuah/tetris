@@ -27,7 +27,7 @@ class Piece {
 
  public:
 
-  Piece(const char _type, char* _board);
+  Piece(char _type, char** _board);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'
   int rotateFrameWidth() const;

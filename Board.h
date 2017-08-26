@@ -2,7 +2,6 @@
 #define BOARD_H
 
 #include "Piece.h"
-#include "View.h"
 
 /*
 Think of the Board as the Model in the Model-View-Controller triad
@@ -15,14 +14,16 @@ class Board {
   static int TIMESTEPS_AFTER_LAYING = 10;
   static constexpr int HEIGHT = 20;
   static constexpr int WIDTH = 10;
+  static constexpr int NTYPES = 7;
   long timesteps_ = 0; // Number of timesteps that have elapsed so far
   long score_ = 0; // Score
   int timeToNextTick_ = 8;
   int timestepsPerTick_ = 8; // 8 to start with, can increase difficulty by reducing this
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done
-  View* view_; // The View is responsible for the graphical display
-  char[HEIGHT][WIDTH] board_;
+  Piece pieces_[NTYPES];
+  char board_[HEIGHT][WIDTH];
+  char ntypes_[NTYPES];
   
   /* void shiftLeft(); */
   /* void shiftRight(); */
@@ -30,6 +31,9 @@ class Board {
   /* void rotateClock(); */
   /* void speedDown(); */
   void dropToBottom();
+  void bringNextPieceUp(); // Get the next piece and make it the current piece
+  // Remove the graphic from the right viewport
+  void generateNextPiece(); // Randomly generate a next piece and update right viewport
   
  public:
   
@@ -43,9 +47,6 @@ class Board {
   // 4. generate the next piece
   int collapseRows(int _row1, int _row2, int _row3, int _row4);
   // Returns the score increment due to row collapse
-  void getNextPiece(); // Get the next piece and make it the current piece
-  // Remove the graphic from the right viewport
-  void generateNextPiece(); // Randomly generate a next piece and update right viewport
   
 
 };

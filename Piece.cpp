@@ -163,7 +163,7 @@
   // So the Board can be responsible for destruction of Piece's static members
 }
 
-Piece::Piece(const char _type, char** _board) : type_(_type) {
+Piece::Piece(char _type, char** _board) : type_(_type) {
   rotateFrameWidth_ = Piece::rotateFrameWidths_[type_];
   rotateFrameSize_ = rotateFrameWidth_ * rotateFrameWidth_;
   board_ = _board;
