@@ -14,13 +14,13 @@
   int jPieceLen = 3; int jPieceRFrameSize = 9;
   int sevenPieceLen = 3; int sevenPieceRFrameSize = 9;
   int tPieceLen = 3; int tPieceRFrameSize = 9;
-  rotateFrameWidths_.insert('o', oPieceLen);
-  rotateFrameWidths_.insert('l', lPieceLen);
-  rotateFrameWidths_.insert('s', sPieceLen);
-  rotateFrameWidths_.insert('z', zPieceLen);
-  rotateFrameWidths_.insert('j', jPieceLen);
-  rotateFrameWidths_.insert('7', sevenPieceLen);
-  rotateFrameWidths_.insert('t', tPieceLen);
+  Piece::rotateFrameWidths_.insert('o', oPieceLen);
+  Piece::rotateFrameWidths_.insert('l', lPieceLen);
+  Piece::rotateFrameWidths_.insert('s', sPieceLen);
+  Piece::rotateFrameWidths_.insert('z', zPieceLen);
+  Piece::rotateFrameWidths_.insert('j', jPieceLen);
+  Piece::rotateFrameWidths_.insert('7', sevenPieceLen);
+  Piece::rotateFrameWidths_.insert('t', tPieceLen);
   
   int numOrientations = 4;
   std::ifstream ifs;
@@ -163,17 +163,21 @@
   // So the Board can be responsible for destruction of Piece's static members
 }
 
-Piece::Piece(const char _type, char* _board) {
-  type_ = _type;
-  rotateFrameWidth_ = rotateFrameWidths_[type_];
+Piece::Piece(const char _type, char** _board) : type_(_type) {
+  rotateFrameWidth_ = Piece::rotateFrameWidths_[type_];
   rotateFrameSize_ = rotateFrameWidth_ * rotateFrameWidth_;
   board_ = _board;
   orientation_ = 0; // Always start with orientation 0
   topLeftRowPos_ = 0;
-  topLeftColPos_ = 4; // This means visually it may be jarring because
+  topLeftColPos_ = 3; // This means visually it may be jarring because
+  if (rotateFrameWidth == 4) topLeftColPos_ = 2;
   // a 2-by-2 piece's left edge will be flush at col 4, but a 'l' piece will be displaced
   // Consider changing, but for now let's try this.
 }
+
+char Piece::type() const { return type_; }
+
+int Piece::rotateFrameWidth() const { return rotateFrameWidth_; }
 
 void Piece::shiftLeft() {
   // First, find leftmost blocks
@@ -201,7 +205,7 @@ void Piece::shiftRight() {
     if (rightMostCols[i] < 0) continue;
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + rightMostCols[i] + 1;
-    if (board_[rownum][colToCheckForCollide] > ' ' || colToCheckForCollide >= BOARDWIDTH)
+    if (board_[rownum][colToCheckForCollide] > ' ' || colToCheckForCollide >= Piece::BOARDWIDTH)
       return;
   }
   ++topLeftColPos;
@@ -234,6 +238,11 @@ bool Piece::rotateAnti() {
     topLeftColPos_ = startColPos;
     return false;
   }
+  if (checkIfHitBottom()) {
+    orientation_ = startOrientation;
+    topLeftColPos_ = startColPos;
+    return false;
+  }
   return true;
 }
 
@@ -253,52 +262,17 @@ bool Piece::rotateClock() {
     topLeftColPos_ = startColPos;
     return false;
   }
+  if (checkIfHitBottom()) {
+    orientation_ = startOrientation;
+    topLeftColPos_ = startColPos;
+    return false;
+  }
   return true;
 }
 
-bool Piece::checkForRotateCollision() {
-  // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
-  char* pieceMap = getPieceMap(this->type_, this->orientation_);
-  int rFrameSize = rotateFrameSize_;
-  int rFrameWidth = rotateFrameWidth_;
-  for (int i = 0; i < rFrameSize; ++i) {
-    int rowNum = i / rotateFrameWidth_;
-    int colNum = i % rotateFrameWidth_;
-    // Now iterate over each possible square, and check for collisions
-    // board_ holds the whole board's laid bricks
-    // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
-    char contentOfSquareInBoard = board_[topLeftRowPos_ + rowNum][topLeftColPos_ + colNum];
-    if (contentOfSquareInBoard > ' ' && pieceMap[i] > ' ') {
-      // Then the piece is clashing with the board.
-      return true;
-    }
-  }
-  return false;
-}
-
-char* Piece::getPieceMap(const char _type, const int _orient) {
-  return orientMap_[_type][_orient];
-}
-
-int Piece::shiftIfRotatePastLeftEdge() {
-  // Gives the number of columns to shift by if your rotation puts piece past the edge
-  // If no shift necessary, returns 0
-  // Worst-case: 'l' piece rotates anti-wise and its leftmost point is 2 steps leftwards
-  // Therefore, the only place you need to start checking is when the topLeftColPos_ is
-  // either 0 or 1. This function should only ever be called when that is the case.
-}
-
-int Piece::shiftIfRotatePastRightEdge() {
-  // Same as the function above, just reduces checking burden to separate the functions
-  // Worst-case: 'l' piece rotates clockwise and its rightmost point becomes 2 steps rightwards
-  // Rotation frame of 'l' piece is also the biggest possible: 4
-  // Therefore, the only place you need to start checking is when the topLeftColPos_ is
-  // WIDTH - 2 (topLeftColPos_ can never be greater than this!)
-}
-
-bool Piece::checkIfHitBottom() {
+bool Piece::checkIfHitBottom() const {
   // Get the lowest squares for this piece
-  std::vector lowests = this->lowestSquares();
+  std::vector<int> lowests = this->lowestSquares();
   // Check if the lowest squares are already adjacent to any already-laid pieces,
   // OR if adjacent to the floor itself
   // mutate the vector so that it gives the rownum of each lowest square, UNLESS -1
@@ -308,12 +282,31 @@ bool Piece::checkIfHitBottom() {
     // Get the rownum of the lowest point for this col
     int rowToCheckForCollide = lowests[i] + topLeftRowPos_ + 1;
     if (board_[rowToCheckForCollide][colnum] > ' ') return true;
-    if (rowToCheckForCollide == BOARDHEIGHT) return true;
+    if (rowToCheckForCollide >= Piece::BOARDHEIGHT) return true;
   }
   return false;
 }
 
-std::vector<int> Piece::leftMostSquares() {
+bool Piece::checkForRotateCollision() const {
+  // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
+  int rFrameSize = rotateFrameSize_;
+  int rFrameWidth = rotateFrameWidth_;
+  for (int i = 0; i < rFrameSize; ++i) {
+    int rowNum = i / rotateFrameWidth_;
+    int colNum = i % rotateFrameWidth_;
+    // Now iterate over each possible square, and check for collisions
+    // board_ holds the whole board's laid bricks
+    // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
+    char contentOfSquareInBoard = board_[topLeftRowPos_ + rowNum][topLeftColPos_ + colNum];
+    if (contentOfSquareInBoard > ' ' && Piece::orientMap_[_type][_orient][i] > ' ') {
+      // Then the piece is clashing with the board.
+      return true;
+    }
+  }
+  return false;
+}
+
+std::vector<int> Piece::leftMostSquares() const {
   std::vector<int> leftMosts(rotateFrameWidth_);
   std::fill(leftMosts.begin(), leftMosts.end(), -1);
   int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
@@ -321,7 +314,7 @@ std::vector<int> Piece::leftMostSquares() {
   for (int i = rFrameVolume-1; i >= 0; --i) {
     rownum = i / rotateFrameWidth;
     colnum = i % rotateFrameWidth;
-    if (orientMap_[type_][orientation_][i] > ' ') {
+    if (Piece::orientMap_[type_][orientation_][i] > ' ') {
       // That means that square is non-empty
       leftMosts[rownum] = colnum;
       // Since iterating backwards, the final one is always leftmost
@@ -330,7 +323,7 @@ std::vector<int> Piece::leftMostSquares() {
   return leftMosts;
 }
 
-std::vector<int> Piece::rightMostSquares() {
+std::vector<int> Piece::rightMostSquares() const {
   std::vector<int> rightMosts(rotateFrameWidth_);
   std::fill(rightMosts.begin(), rightMosts.end(), -1);
   int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
@@ -338,14 +331,14 @@ std::vector<int> Piece::rightMostSquares() {
   for (int i = 0; i < rFrameVolume; ++i) {
     rownum = i / rotateFrameWidth_;
     colnum = i % rotateFrameWidth_;
-    if (orientMap_[type_][orientation_][i] > ' ') {
+    if (Piece::orientMap_[type_][orientation_][i] > ' ') {
       rightMosts[rownum] = colnum; // Iterating forwards, final one is rightmost
     }
   }
   return rightMosts;
 }
 
-std::vector<int> Piece::lowestSquares() {
+std::vector<int> Piece::lowestSquares() const {
   std::vector<int> lowests(rotateFrameWidth_);
   std::fill(lowests.begin(), lowests.end(), -1);
   int rFrameVolume = rotateFrameWidth_ * rotateFrameWidth_;
@@ -353,8 +346,51 @@ std::vector<int> Piece::lowestSquares() {
   for (int i = 0; i < rFrameVolume; ++i) {
     rownum = i / rotateFrameWidth;
     colnum = i % rotateFrameWidth;
-    if (orientMap_[type_][orientation_][i] > ' ') {
+    if (Piece::orientMap_[type_][orientation_][i] > ' ') {
       if (lowests[colnum] < rownum) lowests[colnum] = rownum;
+    }
+  }
+}
+
+int Piece::shiftIfRotatePastLeftEdge() const {
+  // Gives the number of columns to shift by if your rotation puts piece past the edge
+  // If no shift necessary, returns 0
+  // Worst-case: 'l' piece rotates anti-wise and its leftmost point is 2 steps leftwards
+  // Therefore, the only place you need to start checking is when the topLeftColPos_ is
+  // either 0 or 1.
+  std::vector<int> leftMostCols = leftMostSquares();
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (leftMostCols[i] < 0) continue;
+    int leftTipColPos = topLeftColPos_ + leftMostCols[i];
+    if (leftTipColPos < 0) {
+      return (-leftTipColPos);
+    }
+  }
+  return 0;
+}
+
+int Piece::shiftIfRotatePastRightEdge() const {
+  // Same as the function above, just reduces checking burden to separate the functions
+  // Worst-case: 'l' piece rotates clockwise and its rightmost point becomes 2 steps rightwards
+  // Rotation frame of 'l' piece is also the biggest possible: 4
+  // Therefore, the only place you need to start checking is when the topLeftColPos_ is
+  // WIDTH - 2 (topLeftColPos_ can never be greater than this!)
+  std::vector<int> rightMostCols = rightMostSquares();
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (rightMostCols[i] < 0) continue;
+    int rightTipColPos = topLeftColPos_ + rightMostCols[i];
+    if (rightTipColPos >= Piece::BOARDWIDTH) {
+      return (rightTipColPos - Piece::BOARDWIDTH);
+    }
+  }
+  return 0;
+}
+
+void Piece::destructStaticMaps() {
+  for (auto it = Piece::orientMap_.begin(); it != Piece::orientMap_.end(); ++it) {
+    int vectorLength = it->second.length();
+    for (int i = 0; i < vectorLength; ++i) {
+      delete [] it->second[i];
     }
   }
 }
