@@ -30,10 +30,15 @@ class Piece {
   Piece(char _type, char** _board);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'
+  bool checkIfRowColOccupied(int _row, int _col) const;
   int rotateFrameWidth() const;
+  int getRowPos() const;
+  void resetPiece();
   void shiftLeft();
   void shiftRight();
   void tickDown();
+  void dropToBottom();
+  bool checkCollideBelow() const;
   bool rotateAnti();
   bool rotateClock();
   bool checkIfHitBottom() const;

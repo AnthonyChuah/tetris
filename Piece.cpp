@@ -167,17 +167,34 @@ Piece::Piece(char _type, char** _board) : type_(_type) {
   rotateFrameWidth_ = Piece::rotateFrameWidths_[type_];
   rotateFrameSize_ = rotateFrameWidth_ * rotateFrameWidth_;
   board_ = _board;
-  orientation_ = 0; // Always start with orientation 0
-  topLeftRowPos_ = 0;
-  topLeftColPos_ = 3; // This means visually it may be jarring because
-  if (rotateFrameWidth == 4) topLeftColPos_ = 2;
+  resetPiece();
   // a 2-by-2 piece's left edge will be flush at col 4, but a 'l' piece will be displaced
   // Consider changing, but for now let's try this.
 }
 
 char Piece::type() const { return type_; }
 
+bool Piece::checkIfRowColOccupied(int _row, int _col) const {
+  int rowOffset = _row - topLeftRowPos_;
+  int colOffset = _col - topLeftColPos_;
+  if (rowOffset < 0 || rowOffset >= rotateFrameWidth_) return false;
+  if (colOffset < 0 || colOffset >= rotateFrameWidth_) return false;
+  int flatIndex = rowOffset * rotateFrameWidth_ + colOffset;
+  char contentOfSquare = Piece::orientMap_[_type][_orient][flatIndex];
+  if (contentOfSquare == ' ') return false;
+  return true;
+}
+
 int Piece::rotateFrameWidth() const { return rotateFrameWidth_; }
+
+int Piece::getRowPos() const { return topLeftRowPos_; }
+
+void Piece::resetPiece() {
+  orientation_ = 0; // Always start with orientation 0
+  topLeftRowPos_ = 0;
+  topLeftColPos_ = 3; // This means visually it may be jarring because
+  if (rotateFrameWidth == 4) topLeftColPos_ = 2;
+}
 
 void Piece::shiftLeft() {
   // First, find leftmost blocks
@@ -219,6 +236,58 @@ void Piece::tickDown() {
   // Since at each tick you should always check for permanent-layings, the tickDown
   // is merely a setter function to alter the position of the Piece
   --topLeftRowPos_;
+}
+
+void Piece::dropToBottom() {
+  std::vector<int> lowests = lowestSquares();
+  std::vector<int> lowestRowPos = lowests;
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (lowests[i] < 0) {
+      lowestRowPos[i] = -1;
+      continue;
+    }
+    lowestRowPos[i] = topLeftRowPos_ + lowests[i];
+  }
+  int shortestFall = Piece::BOARDHEIGHT;
+  int thisFall;
+  int thisCol;
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (lowestRowPos[i] < 0) continue;
+    thisCol = topLeftColPos_ + i;
+    for (int j = lowestRowPos[i] + 1; j <= Piece::BOARDHEIGHT; ++j) {
+      if (j == Piece::BOARDHEIGHT) {
+	thisFall = Piece::BOARDHEIGHT - lowestRowPos[i] - 1;
+	if (thisFall < shortestFall) shortestFall = thisFall;
+	break;
+      }
+      if (board_[j][thisCol] > ' ') {
+        thisFall = j - lowestRowPos[i] - 1;
+	if (thisFall < shortestFall) shortestFall = thisFall;
+        break;
+      }
+    }
+  }
+  this->topLeftRowPos_ -= shortestFall;
+}
+
+bool Piece::checkCollideBelow() const {
+  std::vector<int> lowests = lowestSquares();
+  std::vector<int> lowestRowPos = lowests;
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (lowests[i] < 0) {
+      lowestRowPos[i] = -1;
+      continue;
+    }
+    lowestRowPos[i] = topLeftRowPos_ + lowests[i];
+  }
+  int thisCol;
+  for (int i = 0; i < rotateFrameWidth_; ++i) {
+    if (lowestRowPos[i] < 0) continue;
+    thisCol = topLeftColPos_ + i;
+    if (lowestRowPos[i] == Piece::BOARDHEIGHT - 1) return true; // At bottom-most
+    if (board_[lowestRowPos[i] + 1][thisCol] > ' ') return true; // Collided with brick below
+  }
+  return false;
 }
 
 bool Piece::rotateAnti() {

@@ -32,6 +32,15 @@ void Board::timestep(int _command) {
      The tick() function will check if current piece is "flush" against either the floor or 
      an already-laid piece
    */
+  if (this->periodBetweenPieces) {
+    --timeToNextTick_;
+    if (!timeToNextTick) {
+      bringNextPieceUp();
+      generateNextPiece();
+      this->periodBetweenPieces = false;
+    }
+    return;
+  }
   switch(_command) {
   case 1: currentPiece_->shiftLeft();
     // Let the Piece take care of whether it exceeds Board boundaries,
@@ -40,7 +49,7 @@ void Board::timestep(int _command) {
   case 3: currentPiece_->rotateAnti();
   case 4: currentPiece_->rotateClock();
   case 5: timeToNextTick_ = 1;
-  case 6: dropToBottom(); timeToNextTick_ = 1;
+  case 6: currentPiece->dropToBottom(); timeToNextTick_ = 1;
   default: // Do nothing
   }
   --timeToNextTick_;
@@ -50,16 +59,34 @@ void Board::timestep(int _command) {
   }
 }
 
-void Board::dropToBottom() {
-  /* First, retrieve the y-displacements of the lowest points of currentPiece
-     Check the distance to fall for each of the lowest points
-     Find the shortest, then displace the piece downwards by that distance
-     ACTUALLY, CONSIDER MOVING THIS TO PIECE::
-   */
+void Board::tick() {
+  // First, check if the currentPiece is flush-against something below it.
+  if (currentPiece_->checkCollideBelow()) {
+    // If so, lay the current piece.
+    layCurrentPiece();
+  } else {
+    // Else, displace the current piece down one step Piece::tickDown().
+  }
+}
+
+void Board::layCurrentPiece() {
+  int scoreIncrement = 0;
+  // Get each row number of the current Piece's rotation frame
+  int pieceRowPos = currentPiece_->getRowPos();
+  int width = currentPiece_->rotateFrameWidth();
+  for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
+    scoreIncrement += tryCollapseRow(i);
+  }
+}
+
+int Board::tryCollapseRows(int _row) {
+  // Check if this row is all filled up. If so, collapse this row
+  // Should be OK to do the slightly-inefficient row-by-row collapse
 }
 
 void Board::bringNextPieceUp() {
   currentPiece_ = nextPiece_;
+  currentPiece_->resetPiece();
 }
 
 void Board::generateNextPiece() {

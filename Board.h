@@ -11,7 +11,6 @@ It is the centre of the game logic
 class Board {
 
   static int MILLISECS_PER_TIMESTEP = 50;
-  static int TIMESTEPS_AFTER_LAYING = 10;
   static constexpr int HEIGHT = 20;
   static constexpr int WIDTH = 10;
   static constexpr int NTYPES = 7;
@@ -19,6 +18,8 @@ class Board {
   long score_ = 0; // Score
   int timeToNextTick_ = 8;
   int timestepsPerTick_ = 8; // 8 to start with, can increase difficulty by reducing this
+  bool periodBetweenPieces = false; // There is a pause period between laying one piece
+  // and spawning the next piece
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done
   Piece pieces_[NTYPES];
@@ -30,7 +31,7 @@ class Board {
   /* void rotateAnti(); */
   /* void rotateClock(); */
   /* void speedDown(); */
-  void dropToBottom();
+  /* void dropToBottom(); */
   void bringNextPieceUp(); // Get the next piece and make it the current piece
   // Remove the graphic from the right viewport
   void generateNextPiece(); // Randomly generate a next piece and update right viewport
@@ -45,9 +46,10 @@ class Board {
   // 2. check for rows completed: if any completed, collapse rows
   // 3. get the next piece, make it the current piece, and put it into play
   // 4. generate the next piece
-  int collapseRows(int _row1, int _row2, int _row3, int _row4);
+  int tryCollapseRow(int _row);
   // Returns the score increment due to row collapse
-  
+
+  friend class View; // The View needs to be able to see everything in Board for graphics
 
 };
 
