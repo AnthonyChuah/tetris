@@ -33,6 +33,7 @@ class Piece {
   bool checkIfRowColOccupied(int _row, int _col) const;
   int rotateFrameWidth() const;
   int getRowPos() const;
+  int getColPos() const;
   void resetPiece();
   void shiftLeft();
   void shiftRight();

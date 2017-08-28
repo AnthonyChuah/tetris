@@ -3,7 +3,8 @@
 #include <exception>
 #include <random>
 
-Board::Board() {
+Board::Board(int _stepsPerTick) : timestepsPerTick_(_stepsPerTick) {
+  timeToNextTick_ = timestepsPerTick_;
   for (int i = 0; i < Board::HEIGHT; ++i) {
     for (int j = 0; j < Board::WIDTH; ++j) {
       board_[i][j] = ' ';
@@ -66,23 +67,54 @@ void Board::tick() {
     layCurrentPiece();
   } else {
     // Else, displace the current piece down one step Piece::tickDown().
+    currentPiece_->tickDown();
   }
 }
 
 void Board::layCurrentPiece() {
-  int scoreIncrement = 0;
   // Get each row number of the current Piece's rotation frame
   int pieceRowPos = currentPiece_->getRowPos();
+  int pieceColPos = currentPiece_->getColPos();
   int width = currentPiece_->rotateFrameWidth();
-  for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
-    scoreIncrement += tryCollapseRow(i);
+  int thisRow, thisCol;
+  // This "lays" the current piece into the board 2D array permanently
+  for (int i = 0; i < width; ++i) {
+    thisRow = pieceRowPos + i;
+    for (int j = 0; j < width; ++j) {
+      thisCol = pieceColPos + j;
+      if (currentPiece_->checkIfRowColOccupied(thisRow, thisCol)) {
+	board_[thisRow][thisCol] = currentPiece_->type();
+      }
+    }
   }
+  for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
+    score_ += tryCollapseRow(i);
+  }
+  periodBetweenPieces = true;
 }
 
 int Board::tryCollapseRows(int _row) {
   // Check if this row is all filled up. If so, collapse this row
+  for (int j = 0; j < Board::WIDTH; ++j) {
+    if (board_[_row][j] == ' ') {
+      return 0;
+    }
+  }
   // Should be OK to do the slightly-inefficient row-by-row collapse
+  // Do the collapse, then return 1 (to increment score by 1)
+  int upperRow;
+  for (int j = 0; j < Board::WIDTH; ++j) {
+    for (int i = _row; i > 0; --i) {
+      upperRow = _row - 1;
+      board_[_row][j] = board_[upperRow][j];
+    }
+  }
+  // Make sure top row is now empty.
+  for (int j = 0; j < Board::WIDTH; ++j) board_[0][j] = ' ';
+  return 1;
 }
+
+// Private member functions
 
 void Board::bringNextPieceUp() {
   currentPiece_ = nextPiece_;

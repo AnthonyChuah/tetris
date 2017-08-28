@@ -189,6 +189,8 @@ int Piece::rotateFrameWidth() const { return rotateFrameWidth_; }
 
 int Piece::getRowPos() const { return topLeftRowPos_; }
 
+int Piece::getColPos() const { return topLeftColPos_; }
+
 void Piece::resetPiece() {
   orientation_ = 0; // Always start with orientation 0
   topLeftRowPos_ = 0;

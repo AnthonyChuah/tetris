@@ -26,19 +26,13 @@ class Board {
   char board_[HEIGHT][WIDTH];
   char ntypes_[NTYPES];
   
-  /* void shiftLeft(); */
-  /* void shiftRight(); */
-  /* void rotateAnti(); */
-  /* void rotateClock(); */
-  /* void speedDown(); */
-  /* void dropToBottom(); */
   void bringNextPieceUp(); // Get the next piece and make it the current piece
   // Remove the graphic from the right viewport
   void generateNextPiece(); // Randomly generate a next piece and update right viewport
   
  public:
   
-  Board();
+  Board(int _stepsPerTick);
   void timestep(int _command); // Each timestep, do the command entered by the player
   void tick(); // Each tick, the current piece descends one square
   void layCurrentPiece(); // This should do 3 steps:
