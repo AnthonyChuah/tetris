@@ -58,6 +58,7 @@ int main() {
   board.set(0, 3, 'o');
   resetResult = testO.resetPiece();
   assert(resetResult == false);
+  board.set(0, 3, ' ');
   std::cout << "Passed 3 tests: Piece::resetPiece\n";
   // shiftRight
   testS.shiftRight();
@@ -88,6 +89,71 @@ int main() {
   testS.resetPiece();
   assert(testS.checkCollideBelow() == false);
   std::cout << "Passed 8 tests: dropToBottom and checkCollideBelow\n";
-  
+  // rotateAnti rotateClock
+  // 1st case: simple unobstructed rotation
+  testL.resetPiece();
+  assert(testL.checkIfRowColOccupied(0, 3) == true);
+  assert(testL.checkIfRowColOccupied(3, 3) == true);
+  testL.rotateAnti();
+  assert(testL.checkIfRowColOccupied(2, 2) == true);
+  assert(testL.checkIfRowColOccupied(2, 5) == true);
+  assert(testL.checkIfRowColOccupied(1, 3) == false);
+  std::cout << "Passed 5 tests: rotateAnti (unobstructed)\n";
+  testL.resetPiece();
+  testL.rotateClock();
+  assert(testL.checkIfRowColOccupied(1, 2) == true);
+  assert(testL.checkIfRowColOccupied(1, 5) == true);
+  assert(testL.checkIfRowColOccupied(0, 3) == false);
+  std::cout << "Passed 3 tests: rotateClock (unobstructed)\n";
+  // 2nd case: obstructed and impossible rotation
+  testL.resetPiece();
+  board.set(2, 2, 'o');
+  bool rotateResult = testL.rotateAnti();
+  assert(rotateResult == false);
+  assert(testL.checkIfRowColOccupied(2, 5) == false);
+  board.set(2, 2, ' ');
+  rotateResult = testL.rotateAnti();
+  assert(rotateResult == true);
+  assert(testL.checkIfRowColOccupied(2, 5) == true);
+  std::cout << "Passed 4 tests: rotateAnti (obstructed)\n";
+  board.set(0, 3, 'o');
+  rotateResult = testL.rotateClock();
+  assert(rotateResult == false);
+  assert(testL.checkIfRowColOccupied(2, 5) == true);
+  board.set(0, 3, ' ');
+  rotateResult = testL.rotateClock();
+  assert(rotateResult == true);
+  assert(testL.checkIfRowColOccupied(2, 5) == false);
+  std::cout << "Passed 4 tests: rotateClock (obstructed)\n";
+  // 3rd case: displaced rotation
+  testL.resetPiece();
+  testL.shiftLeft();
+  testL.shiftLeft();
+  testL.shiftLeft();
+  assert(testL.getColPos() == -1);
+  board.set(2, 3, 'o');
+  // Should block the rotate-displace sequence, thus piece should fail to rotate
+  rotateResult = testL.rotateAnti();
+  assert(rotateResult == false);
+  assert(testL.getColPos() == -1);
+  board.set(2, 3, ' ');
+  rotateResult = testL.rotateAnti();
+  assert(rotateResult == true);
+  assert(testL.getColPos() == 0);
+  std::cout << "Passed 4 tests: rotateAnti (displaced)\n";
+  testL.rotateAnti();
+  testL.shiftLeft();
+  testL.shiftLeft();
+  assert(testL.getColPos() == -2);
+  board.set(2, 3, 'o');
+  rotateResult = testL.rotateClock();
+  assert(rotateResult == false);
+  assert(testL.getColPos() == -2);
+  board.set(2, 3, ' ');
+  rotateResult = testL.rotateClock();
+  assert(rotateResult == true);
+  assert(testL.getColPos() == 0);
+  std::cout << "Passed 5 tests: rotateClock (displaced)\n";
+  // All tests passed
   return 0;
 }

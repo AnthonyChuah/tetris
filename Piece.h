@@ -25,6 +25,8 @@ class Piece {
   std::vector<int> lowestSquares() const;
   int shiftIfRotatePastLeftEdge() const;
   int shiftIfRotatePastRightEdge() const;
+  bool checkIfHitBottom() const;
+  bool checkForRotateCollision() const;
 
  public:
 
@@ -48,8 +50,6 @@ class Piece {
   bool checkCollideBelow() const;
   bool rotateAnti();
   bool rotateClock();
-  bool checkIfHitBottom() const;
-  bool checkForRotateCollision() const;
 
   static void populateLookupMaps();
   static void destructStaticMaps();

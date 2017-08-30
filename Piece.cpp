@@ -64,8 +64,8 @@ void Piece::shiftLeft() {
     if (leftMostCols[i] < 0) continue; // that means for this row this piece has no square
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + leftMostCols[i] - 1;
-    if (board_.get(rownum, colToCheckForCollide) > ' ' || colToCheckForCollide < 0)
-      return;
+    if (colToCheckForCollide < 0) return;
+    if (board_.get(rownum, colToCheckForCollide) > ' ') return;
   }
   // If not clash, move all 4 blocks left by decrementing topLeftColPos
   --topLeftColPos_;
@@ -78,8 +78,8 @@ void Piece::shiftRight() {
     if (rightMostCols[i] < 0) continue;
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + rightMostCols[i] + 1;
-    if (board_.get(rownum, colToCheckForCollide) > ' ' || colToCheckForCollide >= Piece::BOARDWIDTH)
-      return;
+    if (colToCheckForCollide >= Piece::BOARDWIDTH) return;
+    if (board_.get(rownum, colToCheckForCollide) > ' ') return;
   }
   ++topLeftColPos_;
 }
@@ -96,7 +96,7 @@ void Piece::tickDown() {
 
 void Piece::dropToBottom() {
   std::vector<int> lowests = lowestSquares();
-  std::vector<int> lowestRowPos = lowests;
+  std::vector<int> lowestRowPos(rotateFrameWidth_);
   for (int i = 0; i < rotateFrameWidth_; ++i) {
     if (lowests[i] < 0) {
       lowestRowPos[i] = -1;
@@ -123,7 +123,7 @@ void Piece::dropToBottom() {
       }
     }
   }
-  this->topLeftRowPos_ -= shortestFall;
+  this->topLeftRowPos_ += shortestFall;
 }
 
 bool Piece::checkCollideBelow() const {
@@ -156,6 +156,7 @@ bool Piece::rotateAnti() {
   int shiftDueToPastRight, shiftDueToPastLeft;
   shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
   shiftDueToPastRight = shiftIfRotatePastRightEdge();
+  // std::cout << "shifts: " << shiftDueToPastLeft << " " << shiftDueToPastRight << "\n";
   topLeftColPos_ += shiftDueToPastLeft;
   topLeftColPos_ -= shiftDueToPastRight;
   if (checkForRotateCollision()) {
@@ -194,6 +195,8 @@ bool Piece::rotateClock() {
   }
   return true;
 }
+
+// Private member functions
 
 bool Piece::checkIfHitBottom() const {
   // Get the lowest squares for this piece
@@ -310,6 +313,8 @@ int Piece::shiftIfRotatePastRightEdge() const {
   }
   return 0;
 }
+
+// Static member functions
 
 void Piece::populateLookupMaps() {
   // Populate the map of rotation frame sizes for each piece type
