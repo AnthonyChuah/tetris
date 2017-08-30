@@ -1,6 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "Grid.h"
 #include "Piece.h"
 
 /*
@@ -23,7 +24,8 @@ class Board {
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done
   Piece pieces_[NTYPES];
-  char board_[HEIGHT][WIDTH];
+  // char board_[HEIGHT][WIDTH];
+  Grid<HEIGHT, WIDTH> board_;
   char ntypes_[NTYPES];
   
   void bringNextPieceUp(); // Get the next piece and make it the current piece

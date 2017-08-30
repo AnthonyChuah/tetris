@@ -1,13 +1,15 @@
+#include "Grid.h"
 #include "Piece.h"
 
 #include <cassert>
 #include <iostream>
 
 int main() {
-  char board[20][10];
+  Piece::populateLookupMaps();
+  Grid<20, 10> board;
   for (int i = 0; i < 20; ++i) {
     for (int j = 0; j < 10; ++j) {
-      board[i][j] = ' ';
+      board.set(i, j, ' ');
     }
   }
   Piece testO('o', board);
@@ -19,28 +21,28 @@ int main() {
   Piece testT('t', board);
   // type
   assert(testO.type() == 'o');
-  std::cout << "Passed tests: Piece::type\n";
+  std::cout << "Passed 1 tests: Piece::type\n";
   // getRowPos
   assert(testO.getRowPos() == 0);
-  assert(testL.getRowPos() == 0);
-  std::cout << "Passed tests: Piece::getRowPos\n";
+  assert(testS.getRowPos() == 0);
+  std::cout << "Passed 2 tests: Piece::getRowPos\n";
   // getColPos
   assert(testO.getColPos() == 3);
   assert(testL.getColPos() == 2);
-  std::cout << "Passed tests: Piece::getColPos\n";
+  std::cout << "Passed 2 tests: Piece::getColPos\n";
   // rotateFrameWidth
   assert(testO.rotateFrameWidth() == 2);
   assert(testL.rotateFrameWidth() == 4);
   assert(testT.rotateFrameWidth() == 3);
-  std::cout << "Passed tests: Piece::rotateFrameWidth\n";
+  std::cout << "Passed 3 tests: Piece::rotateFrameWidth\n";
   // checkIfRowColOccupied
   assert(testL.checkIfRowColOccupied(0, 2) == false);
   assert(testL.checkIfRowColOccupied(3, 3) == true);
-  assert(testL.checkIfRowColOccupied(3, 2) == true);
-  assert(testL.checkIfRowColOccupied(3, 1) == true);
-  assert(testL.checkIfRowColOccupied(3, 0) == true);
+  assert(testL.checkIfRowColOccupied(2, 3) == true);
+  assert(testL.checkIfRowColOccupied(1, 3) == true);
+  assert(testL.checkIfRowColOccupied(0, 3) == true);
   assert(testO.checkIfRowColOccupied(19, 9) == false);
-  std::cout << "Passed tests: Piece::checkIfRowColOccupied\n";
+  std::cout << "Passed 6 tests: Piece::checkIfRowColOccupied\n";
   // shiftLeft
   testO.shiftLeft();
   assert(testO.getColPos() == 2);
@@ -48,11 +50,15 @@ int main() {
   testO.shiftLeft(); // After this, colPos is 0
   testO.shiftLeft(); // It should not be allowed to go under 0
   assert(testO.getColPos() == 0);
-  std::cout << "Passed tests: Piece::shiftLeft\n";
+  std::cout << "Passed 2 tests: Piece::shiftLeft\n";
   // resetPiece
-  testO.resetPiece();
+  bool resetResult = testO.resetPiece();
   assert(testO.getColPos() == 3);
-  std::cout << "Passed tests: Piece::resetPiece\n";
+  assert(resetResult == true);
+  board.set(0, 3, 'o');
+  resetResult = testO.resetPiece();
+  assert(resetResult == false);
+  std::cout << "Passed 3 tests: Piece::resetPiece\n";
   // shiftRight
   testS.shiftRight();
   assert(testS.getColPos() == 4);
@@ -61,19 +67,19 @@ int main() {
   testS.shiftRight(); // 7
   testS.shiftRight(); // Should not be able to go above 7
   assert(testS.getColPos() == 7);
-  std::cout << "Passed tests: Piece::shiftRight\n";
+  std::cout << "Passed 2 tests: Piece::shiftRight\n";
   // tickDown
   testS.tickDown(); // Row: 1
   assert(testS.getRowPos() == 1);
-  std::cout << "Passed tests: Piece::tickDown\n";
+  std::cout << "Passed 1 tests: Piece::tickDown\n";
   // dropToBottom
-  board[4][7] = 'o';
+  board.set(4, 7, 'o');
   testS.dropToBottom();
   assert(testS.getColPos() == 7);
   assert(testS.getRowPos() == 1);
   // checkCollideBelow
   assert(testS.checkCollideBelow() == true);
-  board[4][7] = ' ';
+  board.set(4, 7, ' ');
   assert(testS.checkCollideBelow() == false);
   testS.dropToBottom();
   assert(testS.getColPos() == 7);
@@ -81,7 +87,7 @@ int main() {
   assert(testS.checkCollideBelow() == true);
   testS.resetPiece();
   assert(testS.checkCollideBelow() == false);
-  std::cout << "Passed tests: dropToBottom and checkCollideBelow\n";
+  std::cout << "Passed 8 tests: dropToBottom and checkCollideBelow\n";
   
   return 0;
 }

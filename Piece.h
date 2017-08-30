@@ -2,13 +2,15 @@
 #define PIECE_H
 
 #include <vector>
+#include <unordered_map>
+
+#include "Grid.h"
 
 class Piece {
 
-  static constexpr int BOARDWIDTH = 10;
-  static constexpr int BOARDHEIGHT = 20;
   static std::unordered_map<char, std::vector<char*> > orientMap_;
   static std::unordered_map<char, int> rotateFrameWidths_;
+  static bool mapsInitialized;
 
   int topLeftRowPos_;
   int topLeftColPos_;
@@ -16,8 +18,7 @@ class Piece {
   int orientation_; // left is 0, top is 1, right is 2, bottom is 3
   const char type_;
   int rotateFrameWidth_;
-  int rotateFrameSize_; // Initialize from object constructor using rotateFrameSizes_ map
-  char** board_; // pointer to the board so it can assess if a rotation or shift is illegal
+  int rotateFrameSize_; // It's the volume, i.e. 2-by-2 has size 4, width 2
 
   std::vector<int> leftMostSquares() const;
   std::vector<int> rightMostSquares() const;
@@ -27,14 +28,19 @@ class Piece {
 
  public:
 
-  Piece(char _type, char** _board);
+  static constexpr int BOARDWIDTH = 10;
+  static constexpr int BOARDHEIGHT = 20;
+
+  Grid<BOARDHEIGHT, BOARDWIDTH>& board_;
+
+  Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'
   bool checkIfRowColOccupied(int _row, int _col) const;
   int rotateFrameWidth() const;
   int getRowPos() const;
   int getColPos() const;
-  void resetPiece();
+  bool resetPiece(); // If it returns false, GAME OVER
   void shiftLeft();
   void shiftRight();
   void tickDown();
@@ -44,7 +50,8 @@ class Piece {
   bool rotateClock();
   bool checkIfHitBottom() const;
   bool checkForRotateCollision() const;
-  
+
+  static void populateLookupMaps();
   static void destructStaticMaps();
   
 };
