@@ -90,7 +90,7 @@ void Board::layCurrentPiece() {
   for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
     score_ += tryCollapseRow(i);
   }
-  periodBetweenPieces = true;
+  this->periodBetweenPieces = true;
 }
 
 int Board::tryCollapseRows(int _row) {

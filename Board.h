@@ -46,6 +46,7 @@ class Board {
   // Returns the score increment due to row collapse
 
   friend class View; // The View needs to be able to see everything in Board for graphics
+  friend class BoardTester; // To allow for unit tests
 
 };
 
