@@ -19,7 +19,7 @@ class Board {
   long score_ = 0; // Score
   int timeToNextTick_ = 8;
   int timestepsPerTick_ = 8; // 8 to start with, can increase difficulty by reducing this
-  bool periodBetweenPieces = false; // There is a pause period between laying one piece
+  bool periodBetweenPieces_ = false; // There is a pause period between laying one piece
   // and spawning the next piece
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done

@@ -8,13 +8,31 @@ public:
 
   Board& board_;
   
-  BoardTester(Board& _board);
-  long getTimesteps() const;
-  long getScore() const;
-  int getTimeToNextTick() const;
-  bool getPeriodBP() const;
-  char getTypeOfCurrentPiece() const;
-  char getTypeOfNextPiece() const;
+  BoardTester(Board& _board) : board_(_board) {}
+  long getTimesteps() const {
+    return board_.timesteps_;
+  }
+  long getScore() const {
+    return board_.score_;
+  }
+  int getTimeToNextTick() const {
+    return board_.timeToNextTick_;
+  }
+  bool getPeriodBP() const {
+    return board_.periodBetweenPieces;
+  }
+  char getTypeOfCurrentPiece() const {
+    return board_.currentPiece_->type();
+  }
+  char getTypeOfNextPiece() const {
+    return board_.nextPiece_->type();
+  }
+  void setCurrentPiece(int _i) {
+    board_.currentPiece_ = board_.pieces_[_i];
+  }
+  void setNextPiece(int _i) {
+    board_.nextPiece_ = board_.pieces_[_i];
+  }
   
 };
 
@@ -23,6 +41,11 @@ int main() {
   // 1. Construct the Board.
   // Check that the current and next pieces are correctly initialized
   // Now for our further tests, set current to 'o' piece, next to 'l' piece
+  Piece::populateLookupMaps();
+  Board board(8);
+  BoardTester tester(board);
+  tester.setCurrentPiece(0);
+  tester.setNextPiece(1);
 
   // 2. Give 4 commands to rotate clockwise, then 4 commands to shiftRight
   // Since it is 8 timesteps, the tick should happen automatically. Check that piece

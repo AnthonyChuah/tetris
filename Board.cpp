@@ -33,12 +33,12 @@ void Board::timestep(int _command) {
      The tick() function will check if current piece is "flush" against either the floor or 
      an already-laid piece
    */
-  if (this->periodBetweenPieces) {
+  if (this->periodBetweenPieces_) {
     --timeToNextTick_;
     if (!timeToNextTick) {
       bringNextPieceUp();
       generateNextPiece();
-      this->periodBetweenPieces = false;
+      this->periodBetweenPieces_ = false;
     }
     return;
   }
@@ -90,7 +90,7 @@ void Board::layCurrentPiece() {
   for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
     score_ += tryCollapseRow(i);
   }
-  this->periodBetweenPieces = true;
+  this->periodBetweenPieces_ = true;
 }
 
 int Board::tryCollapseRows(int _row) {
