@@ -38,6 +38,7 @@ class Piece {
   Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'
+  int getOrient() const;
   bool checkIfRowColOccupied(int _row, int _col) const;
   int rotateFrameWidth() const;
   int getRowPos() const;

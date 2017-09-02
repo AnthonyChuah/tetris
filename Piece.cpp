@@ -21,6 +21,7 @@ Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board) : type_(_type), 
 }
 
 char Piece::type() const { return type_; }
+int Piece::getOrient() const { return orientation_; }
 
 bool Piece::checkIfRowColOccupied(int _row, int _col) const {
   int rowOffset = _row - topLeftRowPos_;
