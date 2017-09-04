@@ -3,15 +3,14 @@
 #include <limits>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 
 std::unordered_map<char, std::vector<char*> > Piece::orientMap_;
 std::unordered_map<char, int> Piece::rotateFrameWidths_;
 bool Piece::mapsInitialized = false;
 
-Piece::Piece() {}
+Piece::Piece() : type_(' '), board_(nullptr) {}
 
-Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board) : type_(_type), board_(_board) {
+Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>* _board) : type_(_type), board_(_board) {
   if (!(Piece::mapsInitialized)) {
     throw std::logic_error("Piece was constructed before static initializations.");
   }
@@ -21,6 +20,9 @@ Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board) : type_(_type), 
   // a 2-by-2 piece's left edge will be flush at col 4, but a 'l' piece will be displaced
   // Consider changing, but for now let's try this.
 }
+
+// I need an overloaded assignment operator
+// By the Rule of 3, this means I should also define copy constructor and destructor
 
 char Piece::type() const { return type_; }
 int Piece::getOrient() const { return orientation_; }
@@ -68,7 +70,7 @@ void Piece::shiftLeft() {
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + leftMostCols[i] - 1;
     if (colToCheckForCollide < 0) return;
-    if (board_.get(rownum, colToCheckForCollide) > ' ') return;
+    if (board_->get(rownum, colToCheckForCollide) > ' ') return;
   }
   // If not clash, move all 4 blocks left by decrementing topLeftColPos
   --topLeftColPos_;
@@ -82,7 +84,7 @@ void Piece::shiftRight() {
     int rownum = topLeftRowPos_ + i;
     int colToCheckForCollide = topLeftColPos_ + rightMostCols[i] + 1;
     if (colToCheckForCollide >= Piece::BOARDWIDTH) return;
-    if (board_.get(rownum, colToCheckForCollide) > ' ') return;
+    if (board_->get(rownum, colToCheckForCollide) > ' ') return;
   }
   ++topLeftColPos_;
 }
@@ -119,7 +121,7 @@ void Piece::dropToBottom() {
 	if (thisFall < shortestFall) shortestFall = thisFall;
 	break;
       }
-      if (board_.get(j, thisCol) > ' ') {
+      if (board_->get(j, thisCol) > ' ') {
         thisFall = j - lowestRowPos[i] - 1;
 	if (thisFall < shortestFall) shortestFall = thisFall;
         break;
@@ -144,7 +146,7 @@ bool Piece::checkCollideBelow() const {
     if (lowestRowPos[i] < 0) continue;
     thisCol = topLeftColPos_ + i;
     if (lowestRowPos[i] == Piece::BOARDHEIGHT - 1) return true; // At bottom-most
-    if (board_.get(lowestRowPos[i] + 1, thisCol) > ' ') return true; // Collided with brick below
+    if (board_->get(lowestRowPos[i] + 1, thisCol) > ' ') return true; // Collided with brick below
   }
   return false;
 }
@@ -159,7 +161,6 @@ bool Piece::rotateAnti() {
   int shiftDueToPastRight, shiftDueToPastLeft;
   shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
   shiftDueToPastRight = shiftIfRotatePastRightEdge();
-  // std::cout << "shifts: " << shiftDueToPastLeft << " " << shiftDueToPastRight << "\n";
   topLeftColPos_ += shiftDueToPastLeft;
   topLeftColPos_ -= shiftDueToPastRight;
   if (checkForRotateCollision()) {
@@ -212,7 +213,7 @@ bool Piece::checkIfHitBottom() const {
     if (lowests[i] < 0) continue;
     // Get the rownum of the lowest point for this col
     int rowToCheckForCollide = lowests[i] + topLeftRowPos_ + 1;
-    if (board_.get(rowToCheckForCollide, colnum) > ' ') return true;
+    if (board_->get(rowToCheckForCollide, colnum) > ' ') return true;
     if (rowToCheckForCollide >= Piece::BOARDHEIGHT) return true;
   }
   return false;
@@ -227,7 +228,7 @@ bool Piece::checkForRotateCollision() const {
     // Now iterate over each possible square, and check for collisions
     // board_ holds the whole board's laid bricks
     // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
-    char contentOfSquareInBoard = board_.get(topLeftRowPos_ + rowNum, topLeftColPos_ + colNum);
+    char contentOfSquareInBoard = board_->get(topLeftRowPos_ + rowNum, topLeftColPos_ + colNum);
     if (contentOfSquareInBoard > ' ' && Piece::orientMap_[type_][orientation_][i] > ' ') {
       // Then the piece is clashing with the board.
       return true;
