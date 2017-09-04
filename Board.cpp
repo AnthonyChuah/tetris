@@ -35,7 +35,7 @@ void Board::timestep(int _command) {
    */
   if (this->periodBetweenPieces_) {
     --timeToNextTick_;
-    if (!timeToNextTick) {
+    if (!timeToNextTick_) {
       bringNextPieceUp();
       generateNextPiece();
       this->periodBetweenPieces_ = false;
@@ -50,11 +50,11 @@ void Board::timestep(int _command) {
   case 3: currentPiece_->rotateAnti();
   case 4: currentPiece_->rotateClock();
   case 5: timeToNextTick_ = 1;
-  case 6: currentPiece->dropToBottom(); timeToNextTick_ = 1;
+  case 6: currentPiece_->dropToBottom(); timeToNextTick_ = 1;
   default: // Do nothing
   }
   --timeToNextTick_;
-  if (!timeToNextTick) {
+  if (!timeToNextTick_) {
     timeToNextTick_ = timestepsPerTick_;
     this->tick();
   }
@@ -93,7 +93,7 @@ void Board::layCurrentPiece() {
   this->periodBetweenPieces_ = true;
 }
 
-int Board::tryCollapseRows(int _row) {
+int Board::tryCollapseRow(int _row) {
   // Check if this row is all filled up. If so, collapse this row
   for (int j = 0; j < Board::WIDTH; ++j) {
     if (board_.get(_row, j) == ' ') {
