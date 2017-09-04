@@ -11,7 +11,7 @@ It is the centre of the game logic
 
 class Board {
 
-  static int MILLISECS_PER_TIMESTEP = 50;
+  static constexpr int MILLISECS_PER_TIMESTEP = 50;
   static constexpr int HEIGHT = 20;
   static constexpr int WIDTH = 10;
   static constexpr int NTYPES = 7;

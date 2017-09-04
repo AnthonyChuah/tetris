@@ -35,6 +35,7 @@ class Piece {
 
   Grid<BOARDHEIGHT, BOARDWIDTH>& board_;
 
+  Piece();
   Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'

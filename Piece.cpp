@@ -9,6 +9,8 @@ std::unordered_map<char, std::vector<char*> > Piece::orientMap_;
 std::unordered_map<char, int> Piece::rotateFrameWidths_;
 bool Piece::mapsInitialized = false;
 
+Piece::Piece() {}
+
 Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>& _board) : type_(_type), board_(_board) {
   if (!(Piece::mapsInitialized)) {
     throw std::logic_error("Piece was constructed before static initializations.");

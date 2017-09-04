@@ -13,22 +13,22 @@ public:
   long getTimesteps() const { return board_.timesteps_; }
   long getScore() const { return board_.score_; }
   int getTimeToNextTick() const { return board_.timeToNextTick_; }
-  bool getPeriodBP() const { return board_.periodBetweenPieces; }
+  bool getPeriodBP() const { return board_.periodBetweenPieces_; }
   char getTypeOfCurrentPiece() const { return board_.currentPiece_->type(); }
   char getTypeOfNextPiece() const { return board_.nextPiece_->type(); }
   int getOrientation() const { return board_.currentPiece_->getOrient(); }
   void setCurrentPiece(int _i) {
-    board_.currentPiece_ = board_.pieces_[_i];
+    board_.currentPiece_ = &board_.pieces_[_i];
   }
   void setNextPiece(int _i) {
-    board_.nextPiece_ = board_.pieces_[_i];
+    board_.nextPiece_ = &board_.pieces_[_i];
   }
   void setGridAt(int _r, int _c, char _ch) {
     board_.board_.set(_r, _c, _ch);
   }
   char getGridAt(int _r, int _c) const { return board_.board_.get(_r, _c); }
-  int getPieceCol() const { return board_.currentPiece->getColPos(); }
-  int getPieceRow() const { return board_.currentPiece->getRowPos(); }
+  int getPieceCol() const { return board_.currentPiece_->getColPos(); }
+  int getPieceRow() const { return board_.currentPiece_->getRowPos(); }
   
 };
 

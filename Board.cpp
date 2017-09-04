@@ -7,7 +7,7 @@ Board::Board(int _stepsPerTick) : timestepsPerTick_(_stepsPerTick) {
   timeToNextTick_ = timestepsPerTick_;
   for (int i = 0; i < Board::HEIGHT; ++i) {
     for (int j = 0; j < Board::WIDTH; ++j) {
-      board_[i][j] = ' ';
+      board_.set(i, j, ' ');
     }
   }
   pieces_[0] = Piece('o', board_);
@@ -83,7 +83,7 @@ void Board::layCurrentPiece() {
     for (int j = 0; j < width; ++j) {
       thisCol = pieceColPos + j;
       if (currentPiece_->checkIfRowColOccupied(thisRow, thisCol)) {
-	board_[thisRow][thisCol] = currentPiece_->type();
+	board_.set(thisRow, thisCol, currentPiece_->type());
       }
     }
   }
@@ -96,7 +96,7 @@ void Board::layCurrentPiece() {
 int Board::tryCollapseRows(int _row) {
   // Check if this row is all filled up. If so, collapse this row
   for (int j = 0; j < Board::WIDTH; ++j) {
-    if (board_[_row][j] == ' ') {
+    if (board_.get(_row, j) == ' ') {
       return 0;
     }
   }
@@ -107,10 +107,11 @@ int Board::tryCollapseRows(int _row) {
     for (int i = _row; i > 0; --i) {
       upperRow = _row - 1;
       board_[_row][j] = board_[upperRow][j];
+      board_.set(_row, j, board_.get(upperRow, j));
     }
   }
   // Make sure top row is now empty.
-  for (int j = 0; j < Board::WIDTH; ++j) board_[0][j] = ' ';
+  for (int j = 0; j < Board::WIDTH; ++j) board_.set(0, j, ' ');
   return 1;
 }
 
