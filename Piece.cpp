@@ -10,6 +10,16 @@ bool Piece::mapsInitialized = false;
 
 Piece::Piece() : type_(' '), board_(nullptr) {}
 
+void Piece::operator=(const Piece& _other) {
+  topLeftRowPos_ = _other.topLeftRowPos_;
+  topLeftColPos_ = _other.topLeftColPos_;
+  orientation_ = _other.orientation_;
+  type_ = _other.type_;
+  rotateFrameWidth_ = _other.rotateFrameWidth_;
+  rotateFrameSize_ = _other.rotateFrameSize_;
+  board_ = _other.board_;
+}
+
 Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>* _board) : type_(_type), board_(_board) {
   if (!(Piece::mapsInitialized)) {
     throw std::logic_error("Piece was constructed before static initializations.");

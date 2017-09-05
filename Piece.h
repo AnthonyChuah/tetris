@@ -16,7 +16,7 @@ class Piece {
   int topLeftColPos_;
   // rotation frame is always square, and its length is 2 or 3 or 4
   int orientation_; // left is 0, top is 1, right is 2, bottom is 3
-  const char type_;
+  char type_;
   int rotateFrameWidth_;
   int rotateFrameSize_; // It's the volume, i.e. 2-by-2 has size 4, width 2
 
@@ -37,6 +37,7 @@ class Piece {
 
   Piece();
   Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>* _board);
+  void operator=(const Piece& _other);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'
   int getOrient() const;

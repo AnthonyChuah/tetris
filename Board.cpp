@@ -10,13 +10,20 @@ Board::Board(int _stepsPerTick) : timestepsPerTick_(_stepsPerTick) {
       board_.set(i, j, ' ');
     }
   }
-  pieces_[0] = Piece('o', board_);
-  pieces_[1] = Piece('l', board_);
-  pieces_[2] = Piece('s', board_);
-  pieces_[3] = Piece('z', board_);
-  pieces_[4] = Piece('j', board_);
-  pieces_[5] = Piece('7', board_);
-  pieces_[6] = Piece('t', board_);
+  Piece oPiece('o', &board_);
+  Piece lPiece('l', &board_);
+  Piece sPiece('s', &board_);
+  Piece zPiece('z', &board_);
+  Piece jPiece('j', &board_);
+  Piece sevenPiece('7', &board_);
+  Piece tPiece('t', &board_);
+  pieces_[0] = oPiece;
+  pieces_[1] = lPiece;
+  pieces_[2] = sPiece;
+  pieces_[3] = zPiece;
+  pieces_[4] = jPiece;
+  pieces_[5] = sevenPiece;
+  pieces_[6] = tPiece;
   this->generateNextPiece();
   this->bringNextPieceUp();
   this->generateNextPiece();
@@ -44,14 +51,19 @@ void Board::timestep(int _command) {
   }
   switch(_command) {
   case 1: currentPiece_->shiftLeft();
-    // Let the Piece take care of whether it exceeds Board boundaries,
-    // or if it encroaches on an already-laid area
+    break;
   case 2: currentPiece_->shiftRight();
+    break;
   case 3: currentPiece_->rotateAnti();
+    break;
   case 4: currentPiece_->rotateClock();
+    break;
   case 5: timeToNextTick_ = 1;
+    break;
   case 6: currentPiece_->dropToBottom(); timeToNextTick_ = 1;
-  default: // Do nothing
+    break;
+  default:
+    break;
   }
   --timeToNextTick_;
   if (!timeToNextTick_) {
@@ -106,7 +118,6 @@ int Board::tryCollapseRow(int _row) {
   for (int j = 0; j < Board::WIDTH; ++j) {
     for (int i = _row; i > 0; --i) {
       upperRow = _row - 1;
-      board_[_row][j] = board_[upperRow][j];
       board_.set(_row, j, board_.get(upperRow, j));
     }
   }
@@ -124,7 +135,7 @@ void Board::bringNextPieceUp() {
 
 void Board::generateNextPiece() {
   std::random_device randomDevice;
-  std::mt19937 generator(randomDevice);
+  std::mt19937 generator(randomDevice());
   std::uniform_int_distribution<int> distribution(0, Board::NTYPES - 1);
   int randomInt = distribution(generator);
   nextPiece_ = pieces_ + randomInt;
