@@ -43,6 +43,7 @@ void Board::timestep(int _command) {
   if (this->periodBetweenPieces_) {
     --timeToNextTick_;
     if (!timeToNextTick_) {
+      timeToNextTick_ = timestepsPerTick_;
       bringNextPieceUp();
       generateNextPiece();
       this->periodBetweenPieces_ = false;

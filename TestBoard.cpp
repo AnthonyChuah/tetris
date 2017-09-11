@@ -65,34 +65,50 @@ int main() {
   tester.board_.timestep(2);
   assert(tester.getPieceCol() == 6);
   assert(tester.getPieceRow() == 0);
+  assert(tester.getTimeToNextTick() == 1);
   tester.board_.timestep(2);
+  assert(tester.getTimeToNextTick() == 8);
   assert(tester.getPieceCol() == 7);
-  assert(tester.getPeriodBP() == false);
   assert(tester.getPieceRow() == 1);
-  assert(tester.getPeriodBP() == true);
-  assert(tester.getTypeOfCurrentPiece() == 'l');
-  std::cout << "Passed 16 tests: Board::timestep (tickDown))\n";
-  std::cout << "Next piece was randomly generated to be of type: "
-	    << tester.getTypeOfNextPiece() << "\n";
-  std::cout << "Only after initial 8 timesteps, does Board change to PeriodBetweenPieces\n";
+  assert(tester.getTimesteps() == 8);
+  assert(tester.getPeriodBP() == false);
+  assert(tester.getTypeOfCurrentPiece() == 'o');
+  std::cout << "Passed tests: Board::timestep (tickDown))\n";
 
-  // Now, the Board should ignore 8 commands and do nothing
+  // Now, the Board should ignore commands out of range and do nothing
   tester.board_.timestep(-5);
   tester.board_.timestep(100);
   tester.board_.timestep(0);
-  tester.board_.timestep(1);
-  tester.board_.timestep(1);
-  assert(tester.getPieceCol() == 7);
+  tester.board_.timestep(1); // shiftLeft
+  tester.board_.timestep(1); // shiftLeft
+  assert(tester.getTimeToNextTick() == 3);
+  assert(tester.getPieceCol() == 5);
   assert(tester.getPieceRow() == 1);
   tester.board_.timestep(5);
+  assert(tester.getTimeToNextTick() == 8);
+  assert(tester.getPieceRow() == 2);
+  std::cout << "Passed tests: Board::timestep (invalid commands)\n";
+  
+  // Drop to bottom!
   tester.board_.timestep(6);
+  assert(tester.getTimeToNextTick() == 8);
   assert(tester.getPeriodBP() == true);
-  assert(tester.getPieceCol() == 7);
-  assert(tester.getPieceRow() == 1);
-  tester.board_.timestep(3);
-  assert(tester.getOrientation() == 0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  tester.board_.timestep(0);
+  assert(tester.getPeriodBP() == true);
+  assert(tester.getTimeToNextTick() == 1);
+  tester.board_.timestep(0);
   assert(tester.getPeriodBP() == false);
-  std::cout << "Passed 7 tests: Board::timestep (during period between pieces)\n";
+  assert(tester.getTimeToNextTick() == 8);
+  assert(tester.getTypeOfCurrentPiece() == 'l');
+  std::cout << "Passed tests: Board::timestep (dropToBottom)\n";
+  std::cout << "Next piece was randomly generated to be of type: "
+	    << tester.getTypeOfNextPiece() << "\n";
   
   // 3. Give 1 command to dropToBottom
   // Verify that timeToNextTick is 8. Verify that the piece has gone to the bottom
