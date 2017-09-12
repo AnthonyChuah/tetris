@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cassert>
 
+// Piece guide: 0 o, 1 l, 2 s, 3 z, 4 j, 5 7, 6 t
+// Moves guide: 1 left, 2 right, 3 anti, 4 clock, 5 down, 6 drop
 class BoardTester {
 
 public:
@@ -29,6 +31,9 @@ public:
   char getGridAt(int _r, int _c) const { return board_.board_.get(_r, _c); }
   int getPieceCol() const { return board_.currentPiece_->getColPos(); }
   int getPieceRow() const { return board_.currentPiece_->getRowPos(); }
+  char getBoardElement(int _r, int _c) const {
+    return board_.board_.get(_r, _c);
+  }
   
 };
 
@@ -84,7 +89,7 @@ int main() {
   assert(tester.getTimeToNextTick() == 3);
   assert(tester.getPieceCol() == 5);
   assert(tester.getPieceRow() == 1);
-  tester.board_.timestep(5);
+  tester.board_.timestep(5); // down
   assert(tester.getTimeToNextTick() == 8);
   assert(tester.getPieceRow() == 2);
   std::cout << "Passed tests: Board::timestep (invalid commands)\n";
@@ -93,6 +98,10 @@ int main() {
   tester.board_.timestep(6);
   assert(tester.getTimeToNextTick() == 8);
   assert(tester.getPeriodBP() == true);
+  assert(tester.getBoardElement(18, 5) == 'o');
+  assert(tester.getBoardElement(18, 6) == 'o');
+  assert(tester.getBoardElement(19, 5) == 'o');
+  assert(tester.getBoardElement(19, 6) == 'o');
   tester.board_.timestep(0);
   tester.board_.timestep(0);
   tester.board_.timestep(0);
@@ -104,21 +113,58 @@ int main() {
   assert(tester.getTimeToNextTick() == 1);
   tester.board_.timestep(0);
   assert(tester.getPeriodBP() == false);
+  assert(tester.getBoardElement(18, 5) == 'o');
   assert(tester.getTimeToNextTick() == 8);
   assert(tester.getTypeOfCurrentPiece() == 'l');
+  assert(tester.getPieceCol() == 2);
+  assert(tester.getPieceRow() == 0);
+  tester.setNextPiece(6); // Next piece is T
+  tester.board_.timestep(1);
+  tester.board_.timestep(1);
+  tester.board_.timestep(1);
+  assert(tester.getPieceCol() == -1);
+  assert(tester.getPieceRow() == 0);
   std::cout << "Passed tests: Board::timestep (dropToBottom)\n";
-  std::cout << "Next piece was randomly generated to be of type: "
-	    << tester.getTypeOfNextPiece() << "\n";
   
-  // 3. Give 1 command to dropToBottom
-  // Verify that timeToNextTick is 8. Verify that the piece has gone to the bottom
-  // Verify that the total timesteps is 9
-  // Verify that the piece has been "laid", such that the Grid now contains the piece
-  // Verify that periodBetweenPieces is true
-  // Verify that with 8 more commands (any), nothing happens to piece (piece still at top)
-  // Verify that now periodBetweenPieces is false
-  // Verify that the piece now moves, by shifting left once and checking col position
+  // Test that rotates displace piece if out of bounds
+  tester.board_.timestep(3); // anti-clockwise
+  tester.board_.timestep(1); // do nothing, blocked by wall
+  assert(tester.getPieceCol() == 0);
+  assert(tester.getPieceRow() == 0);
+  assert(tester.getOrientation() == 3);
+  std::cout << "Passed tests: Board::timestep (rotateAnti)\n";
+  tester.board_.timestep(4); // clock
+  assert(tester.getPieceCol() == 0);
+  assert(tester.getPieceRow() == 0);
+  assert(tester.getOrientation() == 0);
+  tester.board_.timestep(1); // left back to flush against wall
+  assert(tester.getPieceCol() == -1);
+  tester.board_.timestep(4); // clock back to horizontal, now dropped 1 row
+  assert(tester.getPieceCol() == 0);
+  assert(tester.getPieceRow() == 1);
+  std::cout << "Passed tests: Board::timestep (rotateClock)\n";
 
+  // Now I drop the long piece to bottom
+  tester.setNextPiece(5); // sevenPiece
+  tester.board_.timestep(6); // drop
+  /*
+  assert(tester.getBoardElement(19, 0) == 'l');
+  assert(tester.getBoardElement(19, 1) == 'l');
+  assert(tester.getBoardElement(19, 2) == 'l');
+  assert(tester.getBoardElement(19, 3) == 'l');
+  // Make 8 steps to wait for new sevenPiece to be current
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0);
+  assert(tester.getTypeOfCurrentPiece() == '7');
+  tester.board_.timestep(1); // left, now 7 piece should have tip aligned above hole
+  tester.board_.timestep(6); // drop
+  assert(tester.getBoardElement(19, 4) == '7');
+  assert(tester.getBoardElement(18, 4) == '7');
+  assert(tester.getBoardElement(17, 4) == '7');
+  assert(tester.getBoardElement(17, 3) == '7');
+  */
+  std::cout << "Passed tests: part 1 of Board::tryCollapseRows\n";
   // 4. Test the collapsing of a row
   // Fill up the bottom row completely
   // Trigger tryCollapseRow on bottom row

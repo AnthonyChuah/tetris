@@ -57,7 +57,7 @@ int Piece::getColPos() const { return topLeftColPos_; }
 bool Piece::resetPiece() {
   orientation_ = 0; // Always start with orientation 0
   topLeftRowPos_ = 0;
-  topLeftColPos_ = 3; // This means visually it may be jarring because
+  topLeftColPos_ = 3; // This means visually it may be jarring because it skews left
   if (rotateFrameWidth_ == 4) topLeftColPos_ = 2;
   if (checkForRotateCollision()) {
     // If resetting the Piece to the top clashes with the board,
