@@ -3,6 +3,7 @@
 #include <limits>
 #include <algorithm>
 #include <fstream>
+#include <exception>
 
 std::unordered_map<char, std::vector<char*> > Piece::orientMap_;
 std::unordered_map<char, int> Piece::rotateFrameWidths_;
@@ -110,6 +111,7 @@ void Piece::tickDown() {
 }
 
 void Piece::dropToBottom() {
+  // std::cout << "Piece::dropToBottom\n";
   std::vector<int> lowests = lowestSquares();
   std::vector<int> lowestRowPos(rotateFrameWidth_);
   for (int i = 0; i < rotateFrameWidth_; ++i) {
@@ -142,6 +144,7 @@ void Piece::dropToBottom() {
 }
 
 bool Piece::checkCollideBelow() const {
+  // std::cout << "Piece::checkCollideBelow\n";
   std::vector<int> lowests = lowestSquares();
   std::vector<int> lowestRowPos = lowests;
   for (int i = 0; i < rotateFrameWidth_; ++i) {
@@ -153,9 +156,11 @@ bool Piece::checkCollideBelow() const {
   }
   int thisCol;
   for (int i = 0; i < rotateFrameWidth_; ++i) {
+    // std::cout << "lowestRowPos[i] is: " << lowestRowPos[i] << "\n";
     if (lowestRowPos[i] < 0) continue;
     thisCol = topLeftColPos_ + i;
     if (lowestRowPos[i] == Piece::BOARDHEIGHT - 1) return true; // At bottom-most
+    // std::cout << "checkCollide went through to check for bricks\n";
     if (board_->get(lowestRowPos[i] + 1, thisCol) > ' ') return true; // Collided with brick below
   }
   return false;
@@ -194,7 +199,8 @@ bool Piece::rotateClock() {
   int shiftDueToPastRight, shiftDueToPastLeft;
   shiftDueToPastLeft = shiftIfRotatePastLeftEdge();
   shiftDueToPastRight = shiftIfRotatePastRightEdge();
-  if (shiftDueToPastLeft && shiftDueToPastRight) throw std::exception();
+  if (shiftDueToPastLeft && shiftDueToPastRight)
+    throw std::runtime_error("Piece::rotateClock error");
   topLeftColPos_ += shiftDueToPastLeft;
   topLeftColPos_ -= shiftDueToPastRight;
   if (checkForRotateCollision()) {

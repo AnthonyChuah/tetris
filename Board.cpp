@@ -74,6 +74,7 @@ void Board::timestep(int _command) {
 }
 
 void Board::tick() {
+  // std::cout << "Board::tick\n";
   // First, check if the currentPiece is flush-against something below it.
   if (currentPiece_->checkCollideBelow()) {
     // If so, lay the current piece.
@@ -85,6 +86,7 @@ void Board::tick() {
 }
 
 void Board::layCurrentPiece() {
+  // std::cout << "Board::layCurrentPiece\n";
   // Get each row number of the current Piece's rotation frame
   int pieceRowPos = currentPiece_->getRowPos();
   int pieceColPos = currentPiece_->getColPos();
@@ -96,11 +98,14 @@ void Board::layCurrentPiece() {
     for (int j = 0; j < width; ++j) {
       thisCol = pieceColPos + j;
       if (currentPiece_->checkIfRowColOccupied(thisRow, thisCol)) {
+	// std::cout << "Laying " << currentPiece_->type() << " at row " << thisRow
+	// 	  << " col " << thisCol << "\n";
 	board_.set(thisRow, thisCol, currentPiece_->type());
       }
     }
   }
   for (int i = pieceRowPos; i < pieceRowPos + width; ++i) {
+    if (i >= Board::HEIGHT || i < 0) continue;
     score_ += tryCollapseRow(i);
   }
   this->periodBetweenPieces_ = true;

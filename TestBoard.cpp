@@ -142,6 +142,7 @@ int main() {
   tester.board_.timestep(4); // clock back to horizontal, now dropped 1 row
   assert(tester.getPieceCol() == 0);
   assert(tester.getPieceRow() == 1);
+  assert(tester.getOrientation() == 1);
   std::cout << "Passed tests: Board::timestep (rotateClock)\n";
 
   // Now I drop the long piece to bottom
