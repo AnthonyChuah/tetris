@@ -78,7 +78,7 @@ int main() {
   assert(tester.getTimesteps() == 8);
   assert(tester.getPeriodBP() == false);
   assert(tester.getTypeOfCurrentPiece() == 'o');
-  std::cout << "Passed tests: Board::timestep (tickDown))\n";
+  std::cout << "Passed tests: Board::timestep (tickDown)\n";
 
   // Now, the Board should ignore commands out of range and do nothing
   tester.board_.timestep(-5);
@@ -146,9 +146,9 @@ int main() {
   std::cout << "Passed tests: Board::timestep (rotateClock)\n";
 
   // Now I drop the long piece to bottom
-  tester.setNextPiece(5); // sevenPiece
+  tester.setNextPiece(5); // 7 piece
   tester.board_.timestep(6); // drop
-  /*
+  // Now the current piece upcoming is 7
   assert(tester.getBoardElement(19, 0) == 'l');
   assert(tester.getBoardElement(19, 1) == 'l');
   assert(tester.getBoardElement(19, 2) == 'l');
@@ -159,24 +159,47 @@ int main() {
   tester.board_.timestep(0); tester.board_.timestep(0);
   assert(tester.getTypeOfCurrentPiece() == '7');
   tester.board_.timestep(1); // left, now 7 piece should have tip aligned above hole
+  assert(tester.getPeriodBP() == false);
   tester.board_.timestep(6); // drop
+  assert(tester.getPeriodBP() == true);
   assert(tester.getBoardElement(19, 4) == '7');
   assert(tester.getBoardElement(18, 4) == '7');
   assert(tester.getBoardElement(17, 4) == '7');
   assert(tester.getBoardElement(17, 3) == '7');
-  */
   std::cout << "Passed tests: part 1 of Board::tryCollapseRows\n";
-  // 4. Test the collapsing of a row
-  // Fill up the bottom row completely
-  // Trigger tryCollapseRow on bottom row
-  // Verify that the two squares on the rightmost have gone down one step
-
-  // 5. Test the in-game laying of a piece which collapses a row
-  // Fill up bottom row again, except for the leftmost spot
-  // Shift left 3 more times, then dropToBottom
-  // Verify that score is now 1
-  // Verify that bottom row is now empty (collapsed) except for the leftmost square
   
+  // 4. Test the collapsing of a row
+  tester.setNextPiece(6); // t piece
+  // Now trigger the end of period between pieces by making 8 commands (anything)
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0);
+  // Now j piece is the current piece
+  assert(tester.getTypeOfCurrentPiece() == 't');
+  assert(tester.getOrientation() == 0);
+  tester.board_.timestep(3);
+  assert(tester.getOrientation() == 3);
+  tester.board_.timestep(3);
+  assert(tester.getOrientation() == 2);
+  // Shift j piece rightwards 4 times
+  tester.board_.timestep(2); tester.board_.timestep(2); // right
+  tester.board_.timestep(2); tester.board_.timestep(2);
+  // Verify that the two squares on the rightmost have gone down one step
+  assert(tester.getPeriodBP() == false);
+  assert(tester.getScore() == 0);
+  tester.board_.timestep(6); // drop
+  assert(tester.getPeriodBP() == true);
+  assert(tester.getScore() == 1); // score should increment
+  // Verify that bottom of board looks like:
+  //     7oo t
+  assert(tester.getBoardElement(19, 4) == '7');
+  assert(tester.getBoardElement(19, 5) == 'o');
+  assert(tester.getBoardElement(19, 6) == 'o');
+  assert(tester.getBoardElement(19, 8) == 't');
+  // Second row from bottom looks like:
+  //    77
+  assert(tester.getBoardElement(18, 4) == '7');
+  assert(tester.getBoardElement(18, 3) == '7');
   // End of unit tests for Board
   return 0;
 }

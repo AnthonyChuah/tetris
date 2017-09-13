@@ -123,8 +123,8 @@ int Board::tryCollapseRow(int _row) {
   int upperRow;
   for (int j = 0; j < Board::WIDTH; ++j) {
     for (int i = _row; i > 0; --i) {
-      upperRow = _row - 1;
-      board_.set(_row, j, board_.get(upperRow, j));
+      upperRow = i - 1;
+      board_.set(i, j, board_.get(upperRow, j));
     }
   }
   // Make sure top row is now empty.
