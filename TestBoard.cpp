@@ -166,7 +166,7 @@ int main() {
   assert(tester.getBoardElement(18, 4) == '7');
   assert(tester.getBoardElement(17, 4) == '7');
   assert(tester.getBoardElement(17, 3) == '7');
-  std::cout << "Passed tests: part 1 of Board::tryCollapseRows\n";
+  std::cout << "Passed tests: Board::tryCollapseRows (no collapse)\n";
   
   // 4. Test the collapsing of a row
   tester.setNextPiece(6); // t piece
@@ -201,5 +201,7 @@ int main() {
   assert(tester.getBoardElement(18, 4) == '7');
   assert(tester.getBoardElement(18, 3) == '7');
   // End of unit tests for Board
+  std::cout << "Passed tests: Board::tryCollapseRows (collapse)";
+  
   return 0;
 }

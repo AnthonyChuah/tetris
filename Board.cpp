@@ -3,7 +3,7 @@
 #include <exception>
 #include <random>
 
-Board::Board(int _stepsPerTick) : timestepsPerTick_(_stepsPerTick) {
+Board::Board(int _stepsPerTick = 8) : timestepsPerTick_(_stepsPerTick) {
   timeToNextTick_ = timestepsPerTick_;
   for (int i = 0; i < Board::HEIGHT; ++i) {
     for (int j = 0; j < Board::WIDTH; ++j) {
