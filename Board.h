@@ -21,6 +21,7 @@ class Board {
   int timestepsPerTick_ = 8; // 8 to start with, can increase difficulty by reducing this
   bool periodBetweenPieces_ = false; // There is a pause period between laying one piece
   // and spawning the next piece
+  bool gameLost_ = false;
   Piece* currentPiece_; // The current piece that is descending through the board
   Piece* nextPiece_; // The next piece after the current piece is done
   Piece pieces_[NTYPES];
@@ -44,6 +45,7 @@ class Board {
   // 4. generate the next piece
   int tryCollapseRow(int _row);
   // Returns the score increment due to row collapse
+  long getFinalScore() const;
 
   friend class View; // The View needs to be able to see everything in Board for graphics
   friend class BoardTester; // To allow for unit tests

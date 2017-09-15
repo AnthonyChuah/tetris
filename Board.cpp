@@ -29,7 +29,7 @@ Board::Board(int _stepsPerTick = 8) : timestepsPerTick_(_stepsPerTick) {
   this->generateNextPiece();
 }
 
-void Board::timestep(int _command) {
+bool Board::timestep(int _command) {
   ++timesteps_;
   /* Logic of commands:
      Case 5: speeding up descent, simply make the next tick happen immediately,
@@ -40,6 +40,7 @@ void Board::timestep(int _command) {
      The tick() function will check if current piece is "flush" against either the floor or 
      an already-laid piece
    */
+  if (this->gameLost_) return false;
   if (this->periodBetweenPieces_) {
     --timeToNextTick_;
     if (!timeToNextTick_) {
@@ -48,7 +49,7 @@ void Board::timestep(int _command) {
       generateNextPiece();
       this->periodBetweenPieces_ = false;
     }
-    return;
+    return true;
   }
   switch(_command) {
   case 1: currentPiece_->shiftLeft();
@@ -71,6 +72,7 @@ void Board::timestep(int _command) {
     timeToNextTick_ = timestepsPerTick_;
     this->tick();
   }
+  return true;
 }
 
 void Board::tick() {
@@ -131,6 +133,8 @@ int Board::tryCollapseRow(int _row) {
   for (int j = 0; j < Board::WIDTH; ++j) board_.set(0, j, ' ');
   return 1;
 }
+
+long Board::getFinalScore() const { return score_; }
 
 // Private member functions
 

@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <condition_variable>
+#include <SDL2/SDL.h>
 
 #include "CircularBuffer.h"
 
