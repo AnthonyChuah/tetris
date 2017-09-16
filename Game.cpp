@@ -5,11 +5,9 @@
 #include <iostream>
 
 /* Stuff to Google
-   If one thread sleeps for a second, does it actually wake after exactly 1 second
-   when other threads are processing?
  */
 
-Game::Game() : board_(Game::TIMESTEPS_PER_TICK), view_(&board_) {}
+Game::Game() : board_(Game::TIMESTEPS_PER_TICK), view_(board_) {}
 
 void Game::launchAllThreads() {
   this->isRunning = true;
@@ -70,8 +68,9 @@ void Game::launchGameThread() {
     std::unique_lock<std::mutex> locker(mutexClock);
     condvarClock.wait(locker);
     this->updateModelForThisFrame();
-    this->renderView();
+    view_.render();
   }
+  view_.closeGraphics();
 }
 
 void Game::launchClockThread() {
@@ -95,7 +94,4 @@ void Game::updateModelForThisFrame() {
   if (isGameLost) {
     this->isRunning = false; // Serves as shutdown signal
   }
-}
-
-void Game::renderView() {
 }

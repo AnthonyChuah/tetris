@@ -42,7 +42,6 @@ class Game {
   CircularBuffer<int, COMMAND_BUFFER> cmdQueue_;
 
   void updateModelForThisFrame();
-  void renderView();
   
  public:
   
