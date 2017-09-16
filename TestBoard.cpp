@@ -220,6 +220,7 @@ int main() {
   assert(tester.getBoardElement(2, 3) == 'l');
   assert(tester.getBoardElement(3, 3) == 'l');
   assert(tester.getBoardElement(4, 3) == 'o');
+  tester.setNextPiece(0);
   assert(tester.getPeriodBP() == true);
   bool gameNotLost = true;
   gameNotLost = tester.board_.timestep(0);
@@ -230,7 +231,10 @@ int main() {
   gameNotLost = tester.board_.timestep(0);
   gameNotLost = tester.board_.timestep(0);
   assert(gameNotLost == true);
+  assert(tester.getPeriodBP() == true);
   gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(6);
+  assert(tester.getPeriodBP() == false);
   assert(gameNotLost == false); // Failed this test
   std::cout << "Passed tests: Board loss conditions\n";
   

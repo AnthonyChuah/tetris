@@ -140,8 +140,7 @@ long Board::getFinalScore() const { return score_; }
 
 void Board::bringNextPieceUp() {
   currentPiece_ = nextPiece_;
-  currentPiece_->resetPiece();
-  if (currentPiece_->checkForRotateCollision()) {
+  if (!currentPiece_->resetPiece()) {
     this->gameLost_ = true;
   }
 }
