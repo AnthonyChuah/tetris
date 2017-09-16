@@ -36,7 +36,7 @@ class Board {
  public:
   
   Board(int _stepsPerTick);
-  void timestep(int _command); // Each timestep, do the command entered by the player
+  bool timestep(int _command); // Each timestep, do the command entered by the player
   void tick(); // Each tick, the current piece descends one square
   void layCurrentPiece(); // This should do 3 steps:
   // 1. set the piece into its settled position

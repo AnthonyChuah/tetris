@@ -69,7 +69,7 @@ void Game::launchGameThread() {
   while (this->isRunning) {
     std::unique_lock<std::mutex> locker(mutexClock);
     condvarClock.wait(locker);
-    bool gameLost = this->updateModelForThisFrame();
+    this->updateModelForThisFrame();
     this->renderView();
   }
 }

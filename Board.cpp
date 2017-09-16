@@ -141,6 +141,9 @@ long Board::getFinalScore() const { return score_; }
 void Board::bringNextPieceUp() {
   currentPiece_ = nextPiece_;
   currentPiece_->resetPiece();
+  if (currentPiece_->checkForRotateCollision()) {
+    this->gameLost_ = true;
+  }
 }
 
 void Board::generateNextPiece() {

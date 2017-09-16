@@ -34,6 +34,9 @@ public:
   char getBoardElement(int _r, int _c) const {
     return board_.board_.get(_r, _c);
   }
+  void setBoardElement(int _r, int _c, char _dat) {
+    board_.board_.set(_r, _c, _dat);
+  }
   
 };
 
@@ -174,14 +177,14 @@ int main() {
   tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
   tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
   tester.board_.timestep(0); tester.board_.timestep(0);
-  // Now j piece is the current piece
+  // Now t piece is the current piece
   assert(tester.getTypeOfCurrentPiece() == 't');
   assert(tester.getOrientation() == 0);
   tester.board_.timestep(3);
   assert(tester.getOrientation() == 3);
   tester.board_.timestep(3);
   assert(tester.getOrientation() == 2);
-  // Shift j piece rightwards 4 times
+  // Shift t piece rightwards 4 times
   tester.board_.timestep(2); tester.board_.timestep(2); // right
   tester.board_.timestep(2); tester.board_.timestep(2);
   // Verify that the two squares on the rightmost have gone down one step
@@ -201,7 +204,35 @@ int main() {
   assert(tester.getBoardElement(18, 4) == '7');
   assert(tester.getBoardElement(18, 3) == '7');
   // End of unit tests for Board
-  std::cout << "Passed tests: Board::tryCollapseRows (collapse)";
+  std::cout << "Passed tests: Board::tryCollapseRows (collapse)\n";
+
+  // Check loss condition
+  tester.setNextPiece(1); // l piece
+  tester.setBoardElement(4, 3, 'o');
+  // Now trigger the end of period between pieces by making 8 commands (anything)  
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0); tester.board_.timestep(0);
+  tester.board_.timestep(0); tester.board_.timestep(0);
+  assert(tester.getPeriodBP() == false);
+  tester.board_.timestep(5); // forces next tick, laying the piece
+  assert(tester.getBoardElement(0, 3) == 'l');
+  assert(tester.getBoardElement(1, 3) == 'l');
+  assert(tester.getBoardElement(2, 3) == 'l');
+  assert(tester.getBoardElement(3, 3) == 'l');
+  assert(tester.getBoardElement(4, 3) == 'o');
+  assert(tester.getPeriodBP() == true);
+  bool gameNotLost = true;
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  gameNotLost = tester.board_.timestep(0);
+  assert(gameNotLost == true);
+  gameNotLost = tester.board_.timestep(0);
+  assert(gameNotLost == false); // Failed this test
+  std::cout << "Passed tests: Board loss conditions\n";
   
   return 0;
 }

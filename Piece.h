@@ -26,7 +26,6 @@ class Piece {
   int shiftIfRotatePastLeftEdge() const;
   int shiftIfRotatePastRightEdge() const;
   bool checkIfHitBottom() const;
-  bool checkForRotateCollision() const;
 
  public:
 
@@ -53,6 +52,7 @@ class Piece {
   bool checkCollideBelow() const;
   bool rotateAnti();
   bool rotateClock();
+  bool checkForRotateCollision() const;
 
   static void populateLookupMaps();
   static void destructStaticMaps();

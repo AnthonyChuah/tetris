@@ -216,6 +216,24 @@ bool Piece::rotateClock() {
   return true;
 }
 
+bool Piece::checkForRotateCollision() const {
+  // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
+  int rFrameSize = rotateFrameSize_;
+  for (int i = 0; i < rFrameSize; ++i) {
+    int rowNum = i / rotateFrameWidth_;
+    int colNum = i % rotateFrameWidth_;
+    // Now iterate over each possible square, and check for collisions
+    // board_ holds the whole board's laid bricks
+    // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
+    char contentOfSquareInBoard = board_->get(topLeftRowPos_ + rowNum, topLeftColPos_ + colNum);
+    if (contentOfSquareInBoard > ' ' && Piece::orientMap_[type_][orientation_][i] > ' ') {
+      // Then the piece is clashing with the board.
+      return true;
+    }
+  }
+  return false;
+}
+
 // Private member functions
 
 bool Piece::checkIfHitBottom() const {
@@ -231,24 +249,6 @@ bool Piece::checkIfHitBottom() const {
     int rowToCheckForCollide = lowests[i] + topLeftRowPos_ + 1;
     if (board_->get(rowToCheckForCollide, colnum) > ' ') return true;
     if (rowToCheckForCollide >= Piece::BOARDHEIGHT) return true;
-  }
-  return false;
-}
-
-bool Piece::checkForRotateCollision() const {
-  // topLeftRowPos_ and topLeftColPos_ specify the current Piece's location
-  int rFrameSize = rotateFrameSize_;
-  for (int i = 0; i < rFrameSize; ++i) {
-    int rowNum = i / rotateFrameWidth_;
-    int colNum = i % rotateFrameWidth_;
-    // Now iterate over each possible square, and check for collisions
-    // board_ holds the whole board's laid bricks
-    // topLeftRowPos_ and topLeftColPos_, and add rowNum/colNum, to get each square
-    char contentOfSquareInBoard = board_->get(topLeftRowPos_ + rowNum, topLeftColPos_ + colNum);
-    if (contentOfSquareInBoard > ' ' && Piece::orientMap_[type_][orientation_][i] > ' ') {
-      // Then the piece is clashing with the board.
-      return true;
-    }
   }
   return false;
 }
