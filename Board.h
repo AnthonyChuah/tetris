@@ -26,7 +26,7 @@ class Board {
   Piece* nextPiece_; // The next piece after the current piece is done
   Piece pieces_[NTYPES];
   // char board_[HEIGHT][WIDTH];
-  Grid<HEIGHT, WIDTH> board_;
+  Grid<char, HEIGHT, WIDTH> board_;
   char ntypes_[NTYPES];
   
   void bringNextPieceUp(); // Get the next piece and make it the current piece

@@ -32,10 +32,10 @@ class Piece {
   static constexpr int BOARDWIDTH = 10;
   static constexpr int BOARDHEIGHT = 20;
 
-  Grid<BOARDHEIGHT, BOARDWIDTH>* board_;
+  Grid<char, BOARDHEIGHT, BOARDWIDTH>* board_;
 
   Piece();
-  Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>* _board);
+  Piece(char _type, Grid<char, BOARDHEIGHT, BOARDWIDTH>* _board);
   void operator=(const Piece& _other);
   
   char type() const; // Returns the type of piece, e.g. the long piece is 'l'

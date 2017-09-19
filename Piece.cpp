@@ -21,7 +21,7 @@ void Piece::operator=(const Piece& _other) {
   board_ = _other.board_;
 }
 
-Piece::Piece(char _type, Grid<BOARDHEIGHT, BOARDWIDTH>* _board) : type_(_type), board_(_board) {
+Piece::Piece(char _type, Grid<char, BOARDHEIGHT, BOARDWIDTH>* _board) : type_(_type), board_(_board) {
   if (!(Piece::mapsInitialized)) {
     throw std::logic_error("Piece was constructed before static initializations.");
   }
