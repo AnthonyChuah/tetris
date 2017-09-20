@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 
 #include "CircularBuffer.h"
+#include "Board.h"
+#include "View.h"
 
 /*
 The Game is the container for everything: it holds the Board and View
@@ -25,7 +27,7 @@ Commands:
 class Game {
 
   static constexpr int TIMESTEPS_PER_TICK = 8;
-  static constexpr int MILLISECS_PER_TIMESTEP = 50; // 20 frames per second
+  static constexpr int MILLISECS_PER_TIMESTEP = 50;
   static constexpr int COMMAND_BUFFER = 64;
   static constexpr int CMD_LEFT = 1;
   static constexpr int CMD_RIGHT = 2;

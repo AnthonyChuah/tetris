@@ -19,10 +19,10 @@ void Game::launchAllThreads() {
 	    << "DOWN key: shift piece down\n"
 	    << "SPACE key: drop piece to bottom\n"
 	    << "Good luck and have fun!\n";
-  std::this_thread::sleep_for(chrono::milliseconds(1000));
-  std::thread controlThread(this->launchControlThread);
-  std::thread gameThread(this->launchGameThread);
-  std::thread clockThread(this->launchClockThread);
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::thread controlThread(&Game::launchControlThread, this);
+  std::thread gameThread(&Game::launchGameThread, this);
+  std::thread clockThread(&Game::launchClockThread, this);
   controlThread.join();
   gameThread.join();
   clockThread.join();
@@ -74,8 +74,9 @@ void Game::launchGameThread() {
 }
 
 void Game::launchClockThread() {
+  int ms = Game::MILLISECS_PER_TIMESTEP;
   while (this->isRunning) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(Game::MILLISECS_PER_TIMESTEP));
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     condvarClock.notify_all();
   }
 }
@@ -86,12 +87,13 @@ void Game::updateModelForThisFrame() {
   // If cmdQueue is not empty, pop one command off and do board's timestep once
   bool isGameLost = false;
   if (cmdQueue_.getNumel() == 0) {
-    isGameLost = board_.timestep(0); // Do nothing
+    isGameLost = (!board_.timestep(0)); // Do nothing
   } else {
     int thisCommand = cmdQueue_.pop();
-    isGameLost = board_.timestep(thisCommand);
+    isGameLost = (!board_.timestep(thisCommand));
   }
   if (isGameLost) {
+    std::cout << "Game::updateModelForThisFrame is shutting game down.\n";
     this->isRunning = false; // Serves as shutdown signal
   }
 }

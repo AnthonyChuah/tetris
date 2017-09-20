@@ -40,7 +40,10 @@ bool Board::timestep(int _command) {
      The tick() function will check if current piece is "flush" against either the floor or 
      an already-laid piece
    */
-  if (this->gameLost_) return false;
+  if (this->gameLost_) {
+    std::cout << "Board::timestep found that game has been lost.\n";
+    return false;
+  }
   if (this->periodBetweenPieces_) {
     --timeToNextTick_;
     if (!timeToNextTick_) {
@@ -141,6 +144,7 @@ long Board::getFinalScore() const { return score_; }
 void Board::bringNextPieceUp() {
   currentPiece_ = nextPiece_;
   if (!currentPiece_->resetPiece()) {
+    std::cout << "Board::bringNextPieceUp found that game is lost.\n";
     this->gameLost_ = true;
   }
 }

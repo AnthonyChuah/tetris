@@ -4,10 +4,8 @@
 
 View::View(Board& _board) : board_(_board) {
   if (!this->initGraphics()) {
-    throw std::exception("Graphics initialization failed in View constructor.");
-  }
-  if (!this->loadMedia()) {
-    throw std::exception("Media loading failed in View constructor.");
+    std::cout << "Graphics initialization failed in View constructor.\n";
+    throw std::exception();
   }
   // Colour in all the squares
   for (int i = 0; i < View::NUMTYPES; ++i) {
@@ -37,7 +35,11 @@ View::View(Board& _board) : board_(_board) {
   blueValues[6] = 255;
 }
 
-void View::render() const {
+View::~View() {
+  this->closeGraphics();
+}
+
+void View::render() {
   SDL_SetRenderDrawColor(gRenderer, 128, 128, 128, 0xFF);
   SDL_RenderClear(gRenderer);
   // Iterate over the board's rows and cols, and render each
@@ -68,32 +70,75 @@ void View::closeGraphics() {
 // Private member functions
 
 void View::renderMainTetrisBoard() {
-  
+  int height = Board::HEIGHT;
+  int width = Board::WIDTH;
+  int x, y; char type;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      x = LEFTPORT_PAD + j * View::PIECE_WIDTH;
+      y = LEFTPORT_PAD + i * View::PIECE_WIDTH;
+      type = board_.board_.get(i, j);
+      this->renderSquare(type, x,  y);
+    }
+  }
+  int row = board_.currentPiece_->getRowPos();
+  int col = board_.currentPiece_->getColPos();
+  x = LEFTPORT_PAD + col * View::PIECE_WIDTH;
+  y = LEFTPORT_PAD + row * View::PIECE_WIDTH;
+  this->renderPiece(board_.currentPiece_, x, y);
 }
 
-void View::renderPiece(Piece* _piece, int _x, int _y) {
-  char type = _piece->type(); int pieceIndex;
-  if (type == 'o') {
+void View::renderSquare(char _type, int _x, int _y) {
+  int pieceIndex;
+  bool isEmptySquare = false;
+  if (_type == 'o') {
     pieceIndex = 0;
-  } else if (type == 'l') {
+  } else if (_type == 'l') {
     pieceIndex = 1;
-  } else if (type == 's') {
+  } else if (_type == 's') {
     pieceIndex = 2;
-  } else if (type == 'z') {
+  } else if (_type == 'z') {
     pieceIndex = 3;
-  } else if (type == 'j') {
+  } else if (_type == 'j') {
     pieceIndex = 4;
-  } else if (type == '7') {
+  } else if (_type == '7') {
     pieceIndex = 5;
-  } else if (type == 't') {
+  } else if (_type == 't') {
     pieceIndex = 6;
+  } else {
+    isEmptySquare = true;
+  }
+  if (isEmptySquare) {
+    SDL_Rect fillRect = { _x, _y, View::PIECE_WIDTH, View::PIECE_WIDTH };
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(gRenderer, &fillRect);
+    return;
   }
   squares[pieceIndex].x = _x;
   squares[pieceIndex].y = _y;
   int r = redValues[pieceIndex];
   int g = greenValues[pieceIndex];
   int b = blueValues[pieceIndex];
-  
+  SDL_SetRenderDrawColor(gRenderer, r, g, b, 255);
+  SDL_RenderFillRect(gRenderer, &squares[pieceIndex]);
+}
+
+void View::renderPiece(Piece* _piece, int _x, int _y) {
+  char type = _piece->type();
+  int orientation = _piece->getOrient();
+  int frameWidth = _piece->rotateFrameWidth();
+  char* array = Piece::orientMap_[type][orientation];
+  int x, y, flatIndex;
+  for (int i = 0; i < frameWidth; ++i) {
+    for (int j = 0; j < frameWidth; ++j) {
+      x = _x + j * View::PIECE_WIDTH;
+      y = _y + i * View::PIECE_WIDTH;
+      flatIndex = i * frameWidth + j;
+      if (array[flatIndex] > ' ') {
+	this->renderSquare(type, x, y);
+      }
+    }
+  }
 }
 
 bool View::initGraphics() {
@@ -104,22 +149,17 @@ bool View::initGraphics() {
   if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
     std::cout << "Warning: Linear texture filtering not enabled!";
   }
-  gWindow = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, BOARD_WIDTH, BOARD_HEIGHT + TEXT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  gWindow = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, View::WINDOW_WIDTH, View::WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
   if (gWindow == nullptr) {
     std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
     return false;
   }
   gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (gRenderer == NULL) {
+  if (gRenderer == nullptr) {
     std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
     return false;
   }
   SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  int imgFlags = IMG_INIT_PNG;
-  if (!(IMG_Init(imgFlags) & imgFlags)) {
-    std::cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << "\n";
-    return false;
-  }
   // leftViewport.x = 0;
   // leftViewport.y = 0;
   // leftViewport.w = View::LEFTPORT_WIDTH;
@@ -133,10 +173,4 @@ bool View::initGraphics() {
   // lowerRightViewport.w = View::RIGHTPORT_WIDTH;
   // lowerRightViewport.h = View::RIGHTPORT_HEIGHT;
   return true;
-}
-
-bool View::loadMedia() {
-}
-
-void View::drawBrickAt(char _type, int _row, int _col) {
 }

@@ -8,6 +8,8 @@
 
 class Piece {
 
+  // std::vector of size 4, each element represents each orientation
+  // the char* points to an array, of size rotateFrameSize_
   static std::unordered_map<char, std::vector<char*> > orientMap_;
   static std::unordered_map<char, int> rotateFrameWidths_;
   static bool mapsInitialized;

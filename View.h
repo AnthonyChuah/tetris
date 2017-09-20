@@ -19,6 +19,8 @@ Background:   Grey:     128, 128, 128
 
 class View {
 
+  static constexpr int WINDOW_WIDTH = 400;
+  static constexpr int WINDOW_HEIGHT = 480;
   static constexpr int NUMTYPES = 7;
   static constexpr int LEFTPORT_WIDTH = 280;
   static constexpr int LEFTPORT_HEIGHT = 480;
@@ -28,16 +30,14 @@ class View {
   static constexpr int LEFTPORT_PAD = 40;
   static constexpr int RIGHTPORT_VERT_PAD = 100;
   static constexpr int RIGHTPORT_HORZ_PAD = 40;
-  static constexpr int PIECE_WIDTH = 10;
+  static constexpr int PIECE_WIDTH = 20;
   
   Board& board_;
 
   void renderMainTetrisBoard();
-  void renderPiece(Piece* _piece, int _x, int _y); // x is column (pixel), y is row (pixel)
+  void renderSquare(char _type, int _x, int _y); // x is column (pixel), y is row (pixel)
+  void renderPiece(Piece* _piece, int _x, int _y);
   bool initGraphics(); // Do at construction
-  bool loadMedia(); // Do at construction
-  void drawBrickAt(char _type, int _row, int _col); // ' ' type draws black empty space
-  // Every character maps onto a given RGB colour (look up classic tetris colours)
 
   // All the SDL items here
   SDL_Window* gWindow;
@@ -65,7 +65,8 @@ class View {
  public:
   
   View(Board& _board);
-  void render() const;
+  ~View();
+  void render();
   void closeGraphics();
   
 };
