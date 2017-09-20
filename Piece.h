@@ -56,6 +56,8 @@ class Piece {
 
   static void populateLookupMaps();
   static void destructStaticMaps();
+
+  friend class View;
   
 };
 
