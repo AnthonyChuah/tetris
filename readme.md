@@ -63,5 +63,3 @@ Every timestep takes 50 milliseconds, and every tick is forced to happen after 8
 The game ends when the new piece does not have the space to be put into play.
 
 ## Issues
-
-CircularBuffer should be made thread-safe: initially I had planned on not having a separate controller thread, but I changed my mind.
