@@ -16,11 +16,10 @@ class Piece {
 
   int topLeftRowPos_;
   int topLeftColPos_;
-  // rotation frame is always square, and its length is 2 or 3 or 4
   int orientation_; // left is 0, top is 1, right is 2, bottom is 3
   char type_;
-  int rotateFrameWidth_;
-  int rotateFrameSize_; // It's the volume, i.e. 2-by-2 has size 4, width 2
+  int rotateFrameWidth_; // rotation frame is always square, and its width is 2 or 3 or 4
+  int rotateFrameSize_; // It's the area, i.e. 2-by-2 has size 4, width 2
 
   std::vector<int> leftMostSquares() const;
   std::vector<int> rightMostSquares() const;

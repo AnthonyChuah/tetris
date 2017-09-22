@@ -12,8 +12,12 @@
 /*
 The Game is the container for everything: it holds the Board and View
 It serves the functionality of the Controller in the Model-View-Controller triad
+The Model is the Board, the View is View
 It coordinates and launches the threads
-It governs the timers and instructs the Board to proceed ("tick")
+It governs the timers and instructs the Board to proceed ("timestep")
+After the Model updates from the timestep, the View renders
+The clock thread ensures that every timestep happens per >= 50 ms
+
 Commands:
 0: no command, set by default
 1: shift left (LEFT)
@@ -42,6 +46,8 @@ class Game {
   std::mutex mutexClock;
   std::condition_variable condvarClock;
   CircularBuffer<int, COMMAND_BUFFER> cmdQueue_;
+  // This FIFO queue holds all the commands the player inputs
+  // At each timestep, one command is popped and processed
 
   void updateModelForThisFrame();
   
@@ -49,21 +55,11 @@ class Game {
   
   Game(); // default constructor override
   void launchAllThreads(); // calls all 3 launch functions below
-  // void launchControllerThread(); // polls indefinitely to accept user input
-  // whenever user makes an input, this is buffered for the next timestep, and all other
-  // inputs are ignored until that timestep is processed
-  // void launchGameAndViewThread(); // unlike the Controller thread, does not poll
-  // instead, it blocks waiting until a timestep happens (Clock thread notifies)
-  // when unblocked, it figures out what the user's command since the last timestep was
-  // with that command, it executes the change to the game
-  // then once the game is changed, it updates the View (graphics)
-  // NOTE: could be worth separating Game and View threads if in danger of lagging
-  // graphics may lag but the game logic must not
-  void launchControlThread();
-  void launchGameThread(); // does Model/View/Controller all together
+  void launchControlThread(); // listens for user input
+  void launchGameThread(); // updates the Model, then the View renders graphics
   void launchClockThread(); // the clock gives the illusion of smooth real-time playing
-  // WARNING: if processing takes longer than the timestep (50 ms) you could skip a timestep
-  // this should never happen on a normal computer however
+  // WARNING: if processing takes longer than the timestep (50 ms) you could skip
+  // a timestep. This should never happen on a normal computer
   
 };
 

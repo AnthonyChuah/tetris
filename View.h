@@ -39,24 +39,12 @@ class View {
   void renderPiece(Piece* _piece, int _x, int _y);
   bool initGraphics(); // Do at construction
 
-  // All the SDL items here
   SDL_Window* gWindow;
   SDL_Renderer* gRenderer;
-  // Left viewport, upper-right viewport, and lower-right viewport
-  // Left viewport has a dark-grey border (40 pixels on all sides)
-  // Left viewport's border surrounds the tetris area, 200 pixels wide and 400 pixels tall
-  // Every slot on the board is 10 by 10 pixels
-  // Left viewport total dimensions: 280 wide, 480 tall
-  // SDL_Rect leftViewport;
-  // Upper-right viewport is 120 wide and 240 tall
-  // Upper-right viewport displays the current piece, with 40-by-40 space reserved for it
-  // Padding on all sides is 40 pixels around the current piece's display
-  // SDL_Rect upperRightViewport;
-  // Lower-right viewport is 120 wide and 240 tall
-  // Lower-right viewport displays the next piece, with 40-by-40 space reserved for it
-  // Padding on all sides is 40 pixels around the next piece's display
-  // SDL_Rect lowerRightViewport;
-  // This array of SDL_Rects holds the stuff we can render
+  // The window is 400 pixels wide, 480 pixels tall
+  // The game region is 200 wide, 400 tall, and its top-left corner is at 40, 40
+  // On the right side, you have two displayed Pieces (current and next pieces)
+  // The current piece is upper-right, the next piece is lower-right
   SDL_Rect squares[NUMTYPES];
   int redValues[NUMTYPES];
   int greenValues[NUMTYPES];

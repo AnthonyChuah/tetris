@@ -79,32 +79,23 @@ bool Board::timestep(int _command) {
 }
 
 void Board::tick() {
-  // std::cout << "Board::tick\n";
-  // First, check if the currentPiece is flush-against something below it.
   if (currentPiece_->checkCollideBelow()) {
-    // If so, lay the current piece.
     layCurrentPiece();
   } else {
-    // Else, displace the current piece down one step Piece::tickDown().
     currentPiece_->tickDown();
   }
 }
 
 void Board::layCurrentPiece() {
-  // std::cout << "Board::layCurrentPiece\n";
-  // Get each row number of the current Piece's rotation frame
   int pieceRowPos = currentPiece_->getRowPos();
   int pieceColPos = currentPiece_->getColPos();
   int width = currentPiece_->rotateFrameWidth();
   int thisRow, thisCol;
-  // This "lays" the current piece into the board 2D array permanently
   for (int i = 0; i < width; ++i) {
     thisRow = pieceRowPos + i;
     for (int j = 0; j < width; ++j) {
       thisCol = pieceColPos + j;
       if (currentPiece_->checkIfRowColOccupied(thisRow, thisCol)) {
-	// std::cout << "Laying " << currentPiece_->type() << " at row " << thisRow
-	// 	  << " col " << thisCol << "\n";
 	board_.set(thisRow, thisCol, currentPiece_->type());
       }
     }
@@ -117,14 +108,13 @@ void Board::layCurrentPiece() {
 }
 
 int Board::tryCollapseRow(int _row) {
-  // Check if this row is all filled up. If so, collapse this row
+  // First, check if the collapse fails: if so, return
   for (int j = 0; j < Board::WIDTH; ++j) {
     if (board_.get(_row, j) == ' ') {
       return 0;
     }
   }
-  // Should be OK to do the slightly-inefficient row-by-row collapse
-  // Do the collapse, then return 1 (to increment score by 1)
+  // This annoying nested loop moves all the squares downwards
   int upperRow;
   for (int j = 0; j < Board::WIDTH; ++j) {
     for (int i = _row; i > 0; --i) {

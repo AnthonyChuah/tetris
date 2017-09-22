@@ -30,19 +30,19 @@ class Board {
   void bringNextPieceUp(); // Get the next piece and make it the current piece
   // Remove the graphic from the right viewport
   void generateNextPiece(); // Randomly generate a next piece and update right viewport
-  
- public:
-  
-  Board(int _stepsPerTick);
-  bool timestep(int _command); // Each timestep, do the command entered by the player
-  void tick(); // Each tick, the current piece descends one square
+  int tryCollapseRow(int _row);
+  // Returns the score increment due to row collapse
   void layCurrentPiece(); // This should do 3 steps:
   // 1. set the piece into its settled position
   // 2. check for rows completed: if any completed, collapse rows
   // 3. get the next piece, make it the current piece, and put it into play
   // 4. generate the next piece
-  int tryCollapseRow(int _row);
-  // Returns the score increment due to row collapse
+  void tick(); // Each tick, the current piece descends one square
+  
+ public:
+  
+  Board(int _stepsPerTick);
+  bool timestep(int _command); // Each timestep, do the command entered by the player
   long getFinalScore() const;
 
   friend class View; // The View needs to be able to see everything in Board for graphics

@@ -28,15 +28,13 @@ Piece::Piece(char _type, Grid<char, BOARDHEIGHT, BOARDWIDTH>* _board) : type_(_t
   rotateFrameWidth_ = Piece::rotateFrameWidths_[type_];
   rotateFrameSize_ = rotateFrameWidth_ * rotateFrameWidth_;
   resetPiece();
-  // a 2-by-2 piece's left edge will be flush at col 4, but a 'l' piece will be displaced
-  // Consider changing, but for now let's try this.
 }
-
-// I need an overloaded assignment operator
-// By the Rule of 3, this means I should also define copy constructor and destructor
 
 char Piece::type() const { return type_; }
 int Piece::getOrient() const { return orientation_; }
+int Piece::rotateFrameWidth() const { return rotateFrameWidth_; }
+int Piece::getRowPos() const { return topLeftRowPos_; }
+int Piece::getColPos() const { return topLeftColPos_; }
 
 bool Piece::checkIfRowColOccupied(int _row, int _col) const {
   int rowOffset = _row - topLeftRowPos_;
@@ -48,12 +46,6 @@ bool Piece::checkIfRowColOccupied(int _row, int _col) const {
   if (contentOfSquare == ' ') return false;
   return true;
 }
-
-int Piece::rotateFrameWidth() const { return rotateFrameWidth_; }
-
-int Piece::getRowPos() const { return topLeftRowPos_; }
-
-int Piece::getColPos() const { return topLeftColPos_; }
 
 bool Piece::resetPiece() {
   orientation_ = 0; // Always start with orientation 0

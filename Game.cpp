@@ -4,9 +4,6 @@
 #include <chrono>
 #include <iostream>
 
-/* Stuff to Google
- */
-
 Game::Game() : board_(Game::TIMESTEPS_PER_TICK), view_(board_) {}
 
 void Game::launchAllThreads() {
@@ -93,7 +90,6 @@ void Game::updateModelForThisFrame() {
     isGameLost = (!board_.timestep(thisCommand));
   }
   if (isGameLost) {
-    std::cout << "Game::updateModelForThisFrame is shutting game down.\n";
     this->isRunning = false; // Serves as shutdown signal
   }
 }

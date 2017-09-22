@@ -7,7 +7,6 @@ View::View(Board& _board) : board_(_board) {
     std::cout << "Graphics initialization failed in View constructor.\n";
     throw std::exception();
   }
-  // Colour in all the squares
   for (int i = 0; i < View::NUMTYPES; ++i) {
     squares[i].w = View::PIECE_WIDTH;
     squares[i].h = View::PIECE_WIDTH;
@@ -42,20 +41,13 @@ View::~View() {
 void View::render() {
   SDL_SetRenderDrawColor(gRenderer, 128, 128, 128, 0xFF);
   SDL_RenderClear(gRenderer);
-  // Iterate over the board's rows and cols, and render each
-  // SDL_RenderSetViewport(gRenderer, &leftViewport);
   this->renderMainTetrisBoard();
-  // Next, render the image of the current piece
-  // SDL_RenderSetViewport(gRenderer, &upperRightViewport);
   int startX, startY;
   startX = View::LEFTPORT_WIDTH + RIGHTPORT_HORZ_PAD;
   startY = View::RIGHTPORT_VERT_PAD;
   this->renderPiece(board_.currentPiece_, startX, startY);
-  // Next, render the image of the next piece
-  // SDL_RenderSetViewport(gRenderer, &lowerRightViewport);
   startY = View::RIGHTPORT_HEIGHT + View::RIGHTPORT_VERT_PAD;
   this->renderPiece(board_.nextPiece_, startX, startY);
-  // Finally, render the graphics
   SDL_RenderPresent(gRenderer);
 }
 
@@ -160,17 +152,5 @@ bool View::initGraphics() {
     return false;
   }
   SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  // leftViewport.x = 0;
-  // leftViewport.y = 0;
-  // leftViewport.w = View::LEFTPORT_WIDTH;
-  // leftViewport.h = View::LEFTPORT_HEIGHT;
-  // upperRightViewport.x = View::LEFTPORT_WIDTH;
-  // upperRightViewport.y = 0;
-  // upperRightViewport.w = View::RIGHTPORT_WIDTH;
-  // upperRightViewport.h = View::RIGHTPORT_HEIGHT;
-  // lowerRightViewport.x = View::LEFTPORT_WIDTH;
-  // lowerRightViewport.y = View::RIGHTPORT_HEIGHT;
-  // lowerRightViewport.w = View::RIGHTPORT_WIDTH;
-  // lowerRightViewport.h = View::RIGHTPORT_HEIGHT;
   return true;
 }
