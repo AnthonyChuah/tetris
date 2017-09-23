@@ -63,3 +63,14 @@ Every timestep takes 50 milliseconds, and every tick is forced to happen after 8
 The game ends when the new piece does not have the space to be put into play.
 
 ## Issues
+
+On one of my longer games, I encountered this Linux X Server bug that triggered upon the game's ending:
+
+```
+XIO:  fatal IO error 11 (Resource temporarily unavailable) on X server ":0"
+  after 2322 requests (2322 known processed) with 0 events remaining.
+```
+
+https://stackoverflow.com/questions/25790890/xio-fatal-io-error-11
+
+Unfortunately, it is an external issue due to Linux's libxcb library.
